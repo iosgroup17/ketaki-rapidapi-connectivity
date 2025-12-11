@@ -38,7 +38,7 @@ class ProfileRow: UIView {
         addGestureRecognizer(tap)
     }
     
-    func configure(title: String, value: String, isToggle: Bool = false, isConnected: Bool = false){
+    func configure(title: String, value: String, isToggle: Bool = false, isConnected: Bool = false, showIcon: Bool = true){
         titleLabel.text = title
         
         if isToggle {
@@ -55,11 +55,11 @@ class ProfileRow: UIView {
                 valueLabel.textColor = .systemTeal
             } else {
                 valueLabel.text = value
-                valueLabel.textColor = .black
+                valueLabel.textColor = .systemGray
             }
             
             valueLabel.isHidden = false
-            arrowIcon.isHidden = false
+            arrowIcon.isHidden = !showIcon
             actionSwitch.isHidden = true
             
             self.isUserInteractionEnabled = true

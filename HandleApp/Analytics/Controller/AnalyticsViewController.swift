@@ -159,4 +159,73 @@ class AnalyticsViewController: UIViewController {
             }
         }
     }
+    
+    
+    
+    
+    @IBAction func didTapInstagramScore(_ sender: UITapGestureRecognizer) {
+        // Haptic feedback makes it feel "real"
+                let generator = UIImpactFeedbackGenerator(style: .medium)
+                generator.impactOccurred()
+
+                // Create the popup
+                let title = "Instagram Trend"
+                let message = "Good job! Your score is 2.5% higher than last week! 🚀"
+                    
+                    // 3. Create the Popup (Action Sheet looks best for details)
+                    let alert = UIAlertController(
+                        title: title,
+                        message: message,
+                        preferredStyle: .actionSheet
+                    )
+
+                
+                // Add "OK" button
+                alert.addAction(UIAlertAction(title: "Awesome", style: .cancel))
+        
+        // 5. iPad Safety Fix (Prevents crashing on iPad)
+
+        if let popover = alert.popoverPresentationController, let view = sender.view {
+            popover.sourceView = view
+            popover.sourceRect = view.bounds
+        }
+                
+                // Present it
+                self.present(alert, animated: true, completion: nil)
+    }
+    
+    // MARK: - Posting Activity Actions
+        
+        @IBAction func didTapInstagramPosts(_ sender: UITapGestureRecognizer) {
+            // 1. Haptic Feedback (Makes it feel responsive)
+            let generator = UIImpactFeedbackGenerator(style: .medium)
+            generator.impactOccurred()
+            
+            // 2. Define the message (Mock logic for the demo)
+            // In the real app, you would check: if current > lastWeek { ... }
+            let title = "Instagram Activity"
+            let message = "You posted 5 more times than last week on Instagram! Consistency is key. 🚀"
+            // Alternate message for testing:
+            // "You posted 2 fewer times than last week. It's okay to take a break! 🌿"
+            
+            // 3. Create the Popup (Action Sheet looks best for details)
+            let alert = UIAlertController(
+                title: title,
+                message: message,
+                preferredStyle: .actionSheet
+            )
+            
+            // 4. Add the "Close" button
+            alert.addAction(UIAlertAction(title: "Keep it up", style: .cancel))
+            
+            // 5. iPad Safety Fix (Prevents crashing on iPad)
+            if let popover = alert.popoverPresentationController, let view = sender.view {
+                popover.sourceView = view
+                popover.sourceRect = view.bounds
+            }
+            
+            // 6. Show it
+            self.present(alert, animated: true, completion: nil)
+        }
+    
 }

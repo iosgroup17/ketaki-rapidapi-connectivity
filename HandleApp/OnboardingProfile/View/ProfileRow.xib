@@ -9,7 +9,7 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
-        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="ProfileRow" customModule="OnboardingScreens" customModuleProvider="target">
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="ProfileRow" customModule="HandleApp" customModuleProvider="target">
             <connections>
                 <outlet property="actionSwitch" destination="1we-qF-Qg5" id="1cM-Vn-Uk9"/>
                 <outlet property="arrowIcon" destination="J5z-Os-N5e" id="LbA-CF-nca"/>
@@ -27,30 +27,34 @@
                 <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="ZnC-Hg-5O2">
                     <rect key="frame" x="16" y="0.0" width="368" height="55"/>
                     <subviews>
-                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" text="Title" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="9uk-za-IZb">
-                            <rect key="frame" x="0.0" y="18.666666666666668" width="300.66666666666669" height="18.000000000000004"/>
+                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" horizontalCompressionResistancePriority="1000" text="Title" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="9uk-za-IZb">
+                            <rect key="frame" x="0.0" y="18.666666666666668" width="295.66666666666669" height="18.000000000000004"/>
                             <fontDescription key="fontDescription" type="system" weight="medium" pointSize="15"/>
                             <nil key="highlightedColor"/>
                         </label>
-                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Detail" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Nxm-Zw-JTc">
-                            <rect key="frame" x="308.66666666666669" y="18.666666666666668" width="39.333333333333314" height="18.000000000000004"/>
+                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Detail" textAlignment="right" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Nxm-Zw-JTc">
+                            <rect key="frame" x="303.66666666666669" y="18.666666666666668" width="39.333333333333314" height="18.000000000000004"/>
                             <fontDescription key="fontDescription" type="system" pointSize="15"/>
-                            <nil key="textColor"/>
+                            <color key="textColor" systemColor="systemGrayColor"/>
                             <nil key="highlightedColor"/>
                         </label>
                         <switch hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="1we-qF-Qg5">
-                            <rect key="frame" x="352" y="13.666666666666664" width="2" height="28"/>
+                            <rect key="frame" x="347" y="13.666666666666664" width="2" height="28"/>
                             <color key="onTintColor" name="Color"/>
                         </switch>
-                        <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="chevron.right" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="J5z-Os-N5e">
-                            <rect key="frame" x="356" y="20.666666666666671" width="12" height="14.333333333333329"/>
-                            <color key="tintColor" systemColor="systemGray3Color"/>
+                        <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="pencil" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="J5z-Os-N5e">
+                            <rect key="frame" x="351" y="21.666666666666664" width="17" height="12"/>
+                            <color key="tintColor" name="Color"/>
                             <constraints>
-                                <constraint firstAttribute="height" constant="18" id="0dg-Ho-XwN"/>
-                                <constraint firstAttribute="width" constant="12" id="rXy-Wj-KM4"/>
+                                <constraint firstAttribute="height" constant="17" id="0dg-Ho-XwN"/>
+                                <constraint firstAttribute="width" constant="17" id="rXy-Wj-KM4"/>
                             </constraints>
                         </imageView>
                     </subviews>
+                    <constraints>
+                        <constraint firstItem="Nxm-Zw-JTc" firstAttribute="leading" secondItem="9uk-za-IZb" secondAttribute="trailing" constant="30" id="PLu-Z7-e3A"/>
+                        <constraint firstItem="Nxm-Zw-JTc" firstAttribute="leading" secondItem="9uk-za-IZb" secondAttribute="trailing" constant="30" id="cCY-5y-8EV"/>
+                    </constraints>
                 </stackView>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="CIY-rz-1iq">
                     <rect key="frame" x="10" y="54" width="390" height="1"/>
@@ -72,22 +76,22 @@
                 <constraint firstItem="CIY-rz-1iq" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" constant="10" id="w9z-6t-xob"/>
             </constraints>
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
-            <point key="canvasLocation" x="137.40458015267174" y="153.16901408450704"/>
+            <point key="canvasLocation" x="11" y="110"/>
         </view>
     </objects>
     <resources>
-        <image name="chevron.right" catalog="system" width="97" height="128"/>
+        <image name="pencil" catalog="system" width="128" height="113"/>
         <namedColor name="Color">
             <color red="0.0" green="0.76470588235294112" blue="0.81568627450980391" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
-        <systemColor name="systemGray3Color">
-            <color red="0.78039215689999997" green="0.78039215689999997" blue="0.80000000000000004" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-        </systemColor>
         <systemColor name="systemGray5Color">
             <color red="0.8980392157" green="0.8980392157" blue="0.91764705879999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
+        <systemColor name="systemGrayColor">
+            <color red="0.5568627451" green="0.5568627451" blue="0.57647058819999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>

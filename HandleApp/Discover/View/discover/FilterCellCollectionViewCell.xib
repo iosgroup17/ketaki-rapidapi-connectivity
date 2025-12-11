@@ -20,37 +20,37 @@
                         <rect key="frame" x="0.0" y="10" width="393" height="35"/>
                         <subviews>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Psi-iv-hZa">
-                                <rect key="frame" x="0.0" y="0.0" width="57" height="35"/>
+                                <rect key="frame" x="0.0" y="0.0" width="54.333333333333336" height="35"/>
                                 <color key="tintColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="plain" title="All"/>
+                                <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                <state key="normal" title="All"/>
                                 <connections>
                                     <action selector="filterTapped:" destination="gTV-IL-0wX" eventType="touchUpInside" id="3Hx-ll-Gbt"/>
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="jsD-cv-yUz">
-                                <rect key="frame" x="66.999999999999986" y="0.0" width="132.66666666666663" height="35"/>
+                                <rect key="frame" x="64.333333333333329" y="0.0" width="124.99999999999999" height="35"/>
                                 <color key="tintColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="plain" title="Instagram"/>
+                                <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                <state key="normal" title="Instagram"/>
                                 <connections>
                                     <action selector="filterTapped:" destination="gTV-IL-0wX" eventType="touchUpInside" id="UI8-Em-gRJ"/>
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="doD-Hg-9Ce">
-                                <rect key="frame" x="209.66666666666666" y="0.0" width="116.66666666666666" height="35"/>
+                                <rect key="frame" x="199.33333333333334" y="0.0" width="105.00000000000003" height="35"/>
                                 <color key="tintColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="plain" title="LinkedIn"/>
+                                <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                <state key="normal" title="LinkedIn"/>
                                 <connections>
                                     <action selector="filterTapped:" destination="gTV-IL-0wX" eventType="touchUpInside" id="cKi-qY-MxK"/>
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ffg-jl-i7y">
-                                <rect key="frame" x="336.33333333333331" y="0.0" width="56.666666666666686" height="35"/>
+                                <rect key="frame" x="314.33333333333331" y="0.0" width="78.666666666666686" height="35"/>
                                 <color key="tintColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="plain" title="X"/>
+                                <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                <state key="normal" title="X"/>
                                 <connections>
                                     <action selector="filterTapped:" destination="gTV-IL-0wX" eventType="touchUpInside" id="JHc-43-1De"/>
                                 </connections>

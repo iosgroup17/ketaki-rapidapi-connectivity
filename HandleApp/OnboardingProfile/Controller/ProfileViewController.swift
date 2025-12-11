@@ -84,7 +84,7 @@ class ProfileViewController: UIViewController {
         // -----------------------------
         
         // Display Name Row
-        addRow(to: accountStack, title: "Display Name", value: store.displayName ?? "") {
+        addRow(to: accountStack, title: "Display Name", value: store.displayName ?? "", showIcon: false) {
             self.showTextInput(title: "Edit Name", currentValue: store.displayName) { text in
                 store.displayName = text // Save to Store
                 self.loadData()          // Refresh UI
@@ -92,7 +92,7 @@ class ProfileViewController: UIViewController {
         }
         
         // Bio Row
-        addRow(to: accountStack, title: "Short Bio", value: store.shortBio ?? "") {
+        addRow(to: accountStack, title: "Short Bio", value: store.shortBio ?? "", showIcon: false) {
             self.showTextInput(title: "Edit Bio", currentValue: store.shortBio) { text in
                 store.shortBio = text
                 self.loadData()
@@ -173,14 +173,14 @@ class ProfileViewController: UIViewController {
         hideLastSeparator(in: accountStack)
     }
     
-    func addRow(to stack: UIStackView, title: String, value: String, isToggle: Bool = false, isConnected: Bool = false, action: @escaping () -> Void) {
+    func addRow(to stack: UIStackView, title: String, value: String, isToggle: Bool = false, isConnected: Bool = false, showIcon: Bool = true, action: @escaping () -> Void) {
         
         // 1. Create the Row
         let row = ProfileRow()
         // Note: Since we set File's Owner, init() automatically loads the XIB!
         
         // 2. Configure Data
-        row.configure(title: title, value: value, isToggle: isToggle, isConnected: isConnected)
+        row.configure(title: title, value: value, isToggle: isToggle, isConnected: isConnected, showIcon: showIcon)
         
         // 3. Assign Tap Action
         row.tapAction = action

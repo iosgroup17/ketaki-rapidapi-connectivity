@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="24412" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="Hsh-kg-xwP">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="24412" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="EBc-wK-D29">
     <device id="retina6_3" orientation="portrait" appearance="light"/>
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24405"/>
@@ -10,7 +10,7 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--Discover -->
+        <!--Discover-->
         <scene sceneID="rqw-or-IaN">
             <objects>
                 <viewController storyboardIdentifier="DiscoverVC" id="JRS-3Z-au0" customClass="DiscoverViewController" customModule="HandleApp" customModuleProvider="target" sceneMemberID="viewController">
@@ -42,14 +42,13 @@
                         <viewLayoutGuide key="safeArea" id="tFg-UB-Pfr"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
-                            <constraint firstItem="tFg-UB-Pfr" firstAttribute="bottom" secondItem="LbN-rb-MbT" secondAttribute="bottom" id="Huw-Ob-tFA"/>
-                            <constraint firstItem="tFg-UB-Pfr" firstAttribute="trailing" secondItem="LbN-rb-MbT" secondAttribute="trailing" id="RYN-E7-iJG"/>
-                            <constraint firstItem="LbN-rb-MbT" firstAttribute="top" secondItem="tFg-UB-Pfr" secondAttribute="top" id="ZYN-NN-H28"/>
-                            <constraint firstItem="LbN-rb-MbT" firstAttribute="leading" secondItem="tFg-UB-Pfr" secondAttribute="leading" id="gGF-Sb-78j"/>
+                            <constraint firstItem="LbN-rb-MbT" firstAttribute="trailing" secondItem="tFg-UB-Pfr" secondAttribute="trailing" id="14Z-5v-9WY"/>
+                            <constraint firstItem="LbN-rb-MbT" firstAttribute="top" secondItem="tFg-UB-Pfr" secondAttribute="top" id="BQ0-F4-WBM"/>
+                            <constraint firstItem="LbN-rb-MbT" firstAttribute="leading" secondItem="tFg-UB-Pfr" secondAttribute="leading" id="gmX-we-fJT"/>
+                            <constraint firstItem="LbN-rb-MbT" firstAttribute="bottom" secondItem="tFg-UB-Pfr" secondAttribute="bottom" id="zCb-Ei-nyh"/>
                         </constraints>
                     </view>
-                    <tabBarItem key="tabBarItem" title="Discover" image="wand.and.sparkles.inverse" catalog="system" id="cWi-t9-xLd"/>
-                    <navigationItem key="navigationItem" title="Discover " id="Asq-6C-4Ih"/>
+                    <navigationItem key="navigationItem" title="Discover" id="Asq-6C-4Ih"/>
                     <simulatedTabBarMetrics key="simulatedBottomBarMetrics"/>
                     <connections>
                         <outlet property="collectionView" destination="LbN-rb-MbT" id="fcs-Kp-R1s"/>
@@ -58,7 +57,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="BZP-dp-xlz" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1055.2238805970148" y="805.94965675057199"/>
+            <point key="canvasLocation" x="1054" y="806"/>
         </scene>
         <!--Trending Topics-->
         <scene sceneID="XfL-ZM-tNa">
@@ -344,7 +343,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="l0G-or-3Ph" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1880.5970149253731" y="805.94965675057199"/>
+            <point key="canvasLocation" x="1851" y="806"/>
         </scene>
         <!--Schedule-->
         <scene sceneID="KZl-k0-qn8">
@@ -571,25 +570,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="7V8-Ta-Gdv" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="3667.1641791044772" y="805.94965675057199"/>
-        </scene>
-        <!--Navigation Controller-->
-        <scene sceneID="tUD-ZQ-r7P">
-            <objects>
-                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="Hsh-kg-xwP" sceneMemberID="viewController">
-                    <toolbarItems/>
-                    <navigationBar key="navigationBar" contentMode="scaleToFill" largeTitles="YES" id="0pj-8t-cKx">
-                        <rect key="frame" x="0.0" y="124" width="402" height="106"/>
-                        <autoresizingMask key="autoresizingMask"/>
-                    </navigationBar>
-                    <nil name="viewControllers"/>
-                    <connections>
-                        <segue destination="JRS-3Z-au0" kind="relationship" relationship="rootViewController" id="EYP-tK-4Ib"/>
-                    </connections>
-                </navigationController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="TTo-XT-NZ9" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="135.82089552238804" y="805.94965675057199"/>
+            <point key="canvasLocation" x="3607" y="806"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="8gy-nZ-z0O">
@@ -607,7 +588,7 @@
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="EfK-ZO-gFt" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2747.7611940298507" y="805.94965675057199"/>
+            <point key="canvasLocation" x="2782" y="806"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="y9d-JK-xdg">
@@ -624,6 +605,25 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="SE5-gh-z7P" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="1851" y="1461"/>
+        </scene>
+        <!--Discover-->
+        <scene sceneID="W1D-PK-AS8">
+            <objects>
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="EBc-wK-D29" sceneMemberID="viewController">
+                    <tabBarItem key="tabBarItem" title="Discover" image="wand.and.sparkles.inverse" catalog="system" id="cWi-t9-xLd"/>
+                    <toolbarItems/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" largeTitles="YES" id="gSr-fb-5u0">
+                        <rect key="frame" x="0.0" y="124" width="402" height="106"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <nil name="viewControllers"/>
+                    <connections>
+                        <segue destination="JRS-3Z-au0" kind="relationship" relationship="rootViewController" id="QNQ-w0-AAj"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="kWu-II-VOv" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-40" y="806"/>
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>

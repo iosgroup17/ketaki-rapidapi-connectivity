@@ -152,7 +152,7 @@ class SavedPostsTableViewController: UITableViewController, UIPopoverPresentatio
                     }
                     
                     // Update data model
-                    self.savedPosts.remove(at: indexPath.row)
+                    self.displayedPosts.remove(at: indexPath.row)
                     
                     // Update table view with animation
                     tableView.deleteRows(at: [indexPath], with: .automatic)
@@ -187,7 +187,7 @@ class SavedPostsTableViewController: UITableViewController, UIPopoverPresentatio
             if let editorVC = destinationVC, let indexPath = sender as? IndexPath {
                  // ... Your existing data passing logic ...
                  let selectedPost: Post
-                 selectedPost = savedPosts[indexPath.row]
+                 selectedPost = displayedPosts[indexPath.row]
                  let draftData = EditorDraftData(
                      platformName: selectedPost.platformName,
                      platformIconName: selectedPost.platformIconName,
@@ -209,7 +209,7 @@ class SavedPostsTableViewController: UITableViewController, UIPopoverPresentatio
                     // 2. Get Data
                     if let indexPath = sender as? IndexPath {
                         let selectedPost: Post
-                        selectedPost = savedPosts[indexPath.row]
+                        selectedPost = displayedPosts[indexPath.row]
                         
                         // 3. Pass Data (Mapping 'Post' -> 'Scheduler Variables')
                         schedulerVC.postImage = UIImage(named: selectedPost.imageName) // Convert String to UIImage
