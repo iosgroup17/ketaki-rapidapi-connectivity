@@ -29,8 +29,6 @@ class TopicIdeaCollectionViewCell: UICollectionViewCell {
         self.clipsToBounds = false
         self.contentView.clipsToBounds = false
                 
-                // 2. Allow the shadow container to draw outside
-        shadowContainerView.layer.masksToBounds = false
         
         // Initialization code
         setupUI()
@@ -44,7 +42,6 @@ class TopicIdeaCollectionViewCell: UICollectionViewCell {
             shadowContainerView.layer.shadowOpacity = 1
             shadowContainerView.layer.shadowRadius = 10
             shadowContainerView.layer.shadowOffset = .zero
-            shadowContainerView.layer.masksToBounds = false
        
 //            cardView.backgroundColor = .white
 //            cardView.layer.cornerRadius = 20
@@ -53,7 +50,6 @@ class TopicIdeaCollectionViewCell: UICollectionViewCell {
         
             imageView.layer.cornerRadius = 16
             
-            imageView.clipsToBounds = true
            
     }
     

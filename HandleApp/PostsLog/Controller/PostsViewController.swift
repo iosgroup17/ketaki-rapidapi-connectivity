@@ -109,15 +109,13 @@ class PostsViewController: UIViewController {
     func applyPillShadowStyle(to stackView: UIStackView) {
         // 1. Background Color
         // Stack Views need a background color for the shadow to be visible.
-        // Ensure this is set to white (or your desired color).
+
         stackView.backgroundColor = .white
         
         // 3. Corner Radius
-        // Assuming the height is roughly 36-40pt, a radius of 18-20 creates the pill shape.
-        stackView.layer.cornerRadius = 18
+        stackView.layer.cornerRadius = 16
         
         // 4. Shadow Configuration
-        // We must set clipsToBounds = false so the shadow can draw outside the pill.
         stackView.clipsToBounds = false
         
         stackView.layer.shadowColor = UIColor.black.cgColor
@@ -183,7 +181,7 @@ class PostsViewController: UIViewController {
         currentWeekStartDate = newStartDate
         setupCustomCalendar(for: currentWeekStartDate)
     }
-    // Change 'hasEvents: Bool' to 'indicatorColor: UIColor'
+
     private func createDateContainer(date: String, isSelected: Bool, indicatorColor: UIColor, dayIndex: Int) -> UIView {
         let label = UILabel()
         label.text = date
@@ -292,7 +290,6 @@ extension PostsViewController: UITableViewDataSource, UITableViewDelegate {
                         return
                     }
                     
-                    // ✅ THIS WAS MISSING: Trigger the segue manually
                     // We pass 'indexPath' as sender so prepare(for segue:) knows which row data to grab
                     self.performSegue(withIdentifier: "openEditorModal", sender: indexPath)
                     
@@ -304,8 +301,7 @@ extension PostsViewController: UITableViewDataSource, UITableViewDelegate {
         // Schedule Action
         let scheduleAction = UIContextualAction(style: .normal, title: "Schedule") { [weak self] (action, view, completionHandler) in
             guard let self = self else { return completionHandler(false) }
-            
-            // ✅ Trigger the specific segue for Scheduler
+
             self.performSegue(withIdentifier: "openSchedulerModal", sender: indexPath)
             
             completionHandler(true)

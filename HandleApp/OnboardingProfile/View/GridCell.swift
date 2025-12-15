@@ -15,7 +15,6 @@ class GridCell: UICollectionViewCell {
         containerView.layer.cornerRadius = 12
         containerView.layer.borderWidth = 1
         containerView.layer.borderColor = UIColor.systemGray5.cgColor
-        containerView.backgroundColor = .white
     }
     
     override var isSelected: Bool{

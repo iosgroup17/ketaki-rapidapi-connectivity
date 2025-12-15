@@ -31,10 +31,7 @@ class TrendingCollectionViewCell: UICollectionViewCell {
         layer.shadowRadius = 12
         layer.shadowOffset = CGSize(width: 0, height: 2)
         layer.masksToBounds = false
-        
-        
-        
-        // INNER CARD APPEARANCE
+  
         containerView.layer.cornerRadius = 10
         containerView.backgroundColor = .white
         containerView.clipsToBounds = true

@@ -71,11 +71,7 @@ class EditorSuiteViewController: UIViewController {
         }
 
         @objc func doneButtonTapped() {
-            print("Done/Save tapped!")
             
-            // TODO: Save your changes to the Draft/CoreData here
-            
-            // Then close
             dismiss(animated: true, completion: nil)
         }
     func setupCollectionViews() {

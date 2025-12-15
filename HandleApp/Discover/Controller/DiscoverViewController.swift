@@ -194,7 +194,7 @@ class DiscoverViewController: UIViewController {
                 
                 let headerSize = NSCollectionLayoutSize(
                                 widthDimension: .fractionalWidth(1.0),
-                                heightDimension: .absolute(40) // The total box is 40 high
+                                heightDimension: .absolute(40)
                             )
 
                 let header = NSCollectionLayoutBoundarySupplementaryItem(
@@ -304,7 +304,6 @@ extension DiscoverViewController: UICollectionViewDataSource, UICollectionViewDe
                     let rec = recommendations[indexPath.row]
                     
                     // Directly passing the platform string from JSON.
-                    // Logic for colors/icons is handled inside the cell.
                     cell.configure(
                         platform: rec.platformIcon,
                         image: UIImage(named: rec.image),
@@ -346,7 +345,7 @@ extension DiscoverViewController: UICollectionViewDataSource, UICollectionViewDe
             if indexPath.section == 1 {
                 let selectedTopic = trendingTopics[indexPath.row]
                 let selectedID = selectedTopic.id
-                let selectedName = selectedTopic.name // <--- Get the name here
+                let selectedName = selectedTopic.name
                 
                 if let selectedGroup = topicGroups.first(where: { $0.topicId == selectedID }) {
                     
@@ -378,9 +377,9 @@ extension DiscoverViewController: UICollectionViewDataSource, UICollectionViewDe
             }
             
             // 2. Lookup the Full Details in your "Master List"
-            // We look inside the 'selectedPostDetails' list you added to your JSON
+            // We look inside the 'selectedPostDetails' list
             guard let fullDetails = ideasResponse.selectedPostDetails.first(where: { $0.id == selectedID }) else {
-                print("❌ Error: Could not find details for ID: \(selectedID)")
+                print("Error: Could not find details for ID: \(selectedID)")
                 return
             }
             

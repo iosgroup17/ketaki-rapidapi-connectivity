@@ -27,9 +27,8 @@ class RecommendationsCollectionViewCell: UICollectionViewCell {
         shadowView.layer.shadowOffset = CGSize(width: 0, height: 4)
         shadowView.layer.shadowRadius = 8
         shadowView.layer.shadowOpacity = 0.1
-        shadowView.layer.masksToBounds = false
-        
-        cardView.backgroundColor = .white
+
+
         cardView.layer.cornerRadius = 16
         //cardView.layer.masksToBounds = true
         

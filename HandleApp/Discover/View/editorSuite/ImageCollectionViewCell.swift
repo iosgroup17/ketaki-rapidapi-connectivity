@@ -21,7 +21,6 @@ class ImageCollectionViewCell: UICollectionViewCell {
 
     func configure(with image: UIImage) {
             imageView.image = image
-            imageView.contentMode = .scaleAspectFill
             imageView.backgroundColor = .clear
             imageView.tintColor = .clear // Remove tint if any
         }

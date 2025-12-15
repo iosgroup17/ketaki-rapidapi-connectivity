@@ -20,8 +20,7 @@ class HashtagCollectionViewCell: UICollectionViewCell {
         containerView.layer.cornerRadius = 8
         
         containerView.backgroundColor = UIColor(red: 0.85, green: 0.95, blue: 0.96, alpha: 1.0)
-        
-        hashtagLabel.textColor = .black
+
     }
     
     func configure(text: String) {

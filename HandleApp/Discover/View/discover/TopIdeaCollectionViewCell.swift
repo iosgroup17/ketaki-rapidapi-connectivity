@@ -20,7 +20,6 @@ class TopIdeaCollectionViewCell: UICollectionViewCell {
         
             // SHADOW CONTAINER
             ShadowContainer.layer.cornerRadius = 20
-            ShadowContainer.backgroundColor = .white // Required for shadow
             
             // Figma shadow (converted perfectly)
             ShadowContainer.layer.shadowColor = UIColor.black.withAlphaComponent(0.10).cgColor
@@ -40,17 +39,16 @@ class TopIdeaCollectionViewCell: UICollectionViewCell {
         // IMAGE VIEW
         mainImageView.image = image
         mainImageView.layer.cornerRadius = 16
-        mainImageView.layer.masksToBounds = true
+
         
         // CAPTION LABEL
         captionLabel.text = caption
-        captionLabel.font = UIFont.systemFont(ofSize: 17, weight: .regular)
         captionLabel.numberOfLines = 0
         
         // PLATFORM ICON (small square logo beside label)
         platformIconView.image = platformIcon
         platformIconView.layer.cornerRadius = 4
-        platformIconView.layer.masksToBounds = true
+
     }
 
 

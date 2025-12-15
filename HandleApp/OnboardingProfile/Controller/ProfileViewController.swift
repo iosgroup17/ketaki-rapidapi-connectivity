@@ -33,7 +33,6 @@ class ProfileViewController: UIViewController {
         profileImageView.image = UIImage(named: "Avatar")
         profileImageView.layer.cornerRadius = profileImageView.frame.height / 2
         profileImageView.clipsToBounds = true
-        profileImageView.contentMode = .scaleAspectFill
         profileImageView.layer.borderWidth = 2
         profileImageView.layer.borderColor = UIColor.white.cgColor
         
@@ -58,16 +57,13 @@ class ProfileViewController: UIViewController {
     }
     
     func styleCard(_ view: UIView) {
-        view.backgroundColor = .white
         view.layer.cornerRadius = 16
-        // Shadow Effect
         view.layer.shadowColor = UIColor.black.cgColor
         view.layer.shadowOpacity = 0.08
         view.layer.shadowOffset = CGSize(width: 0, height: 4)
         view.layer.shadowRadius = 6
     }
     
-    // MARK: - Data Loading (The Engine)
     func loadData() {
         let store = OnboardingDataStore.shared
         
@@ -139,8 +135,7 @@ class ProfileViewController: UIViewController {
             self.openEditor(forStep: 5) // Make sure this index matches your "Audience" step!
         }
         
-        // 4. TONE (Assuming Step 5 - Sliders)
-        // Tone is saved as [String: Float], e.g. ["Formal": 0.8]
+     
         if let toneArray = store.userAnswers[4] as? [String] {
             let toneString = toneArray.joined(separator: ", ")
             
@@ -185,12 +180,6 @@ class ProfileViewController: UIViewController {
         // 3. Assign Tap Action
         row.tapAction = action
         
-        // 4. Handle Switch Toggle (If it's a social row)
-        if isToggle {
-            // We intercept the switch tap here to update our model
-            // You might need to add a callback to your ProfileRow class for the switch specifically
-            // For now, let's assume tapping the row triggers the action
-        }
         
         // 5. Layout Constraints
         row.translatesAutoresizingMaskIntoConstraints = false
@@ -225,14 +214,12 @@ class ProfileViewController: UIViewController {
     
     func navigateToQuiz(stepIndex: Int) {
         // 1. Instantiate the Parent Onboarding Controller
-        // Ensure your OnboardingViewController has a Storyboard ID: "OnboardingParentVC"
         guard let vc = storyboard?.instantiateViewController(withIdentifier: "OnboardingParentVC") as? OnboardingViewController else {
             print("Error: Could not find OnboardingViewController")
             return
         }
         
         // 2. We need a way to tell it "Start at Step X"
-        // You might need to change 'private var currentStepIndex' to 'public' in OnboardingViewController
         vc.currentStepIndex = stepIndex
         
         // 3. Present it
@@ -253,14 +240,12 @@ class ProfileViewController: UIViewController {
         let storyboard = UIStoryboard(name: "Profile", bundle: nil)
         
         // 2. Create the Onboarding View Controller
-        // Make sure the Storyboard ID is set to "OnboardingParentVC" in Main.storyboard
         guard let editorVC = storyboard.instantiateViewController(withIdentifier: "OnboardingParentVC") as? OnboardingViewController else {
             print("Error: Could not find OnboardingViewController. Check Storyboard ID.")
             return
         }
         
         // 3. Configure it for "Edit Mode"
-        // (You must have added 'var isEditMode = false' to OnboardingViewController previously)
         editorVC.currentStepIndex = stepIndex
         editorVC.isEditMode = true
         
@@ -272,7 +257,7 @@ class ProfileViewController: UIViewController {
         // 5. Present it nicely as a sheet
         editorVC.modalPresentationStyle = .pageSheet
         if let sheet = editorVC.sheetPresentationController {
-            sheet.detents = [.medium(), .large()] // Allows it to slide up half-way
+            sheet.detents = [.medium(), .large()]
             sheet.prefersGrabberVisible = true
         }
         

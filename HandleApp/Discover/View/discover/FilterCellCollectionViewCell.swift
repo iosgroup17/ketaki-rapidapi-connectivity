@@ -39,14 +39,11 @@ class FilterCellCollectionViewCell: UICollectionViewCell {
         allButtons.forEach { btn in
             
             btn.layer.cornerRadius = 20
-            btn.layer.masksToBounds = false
     
             btn.layer.shadowColor = UIColor.black.cgColor
             btn.layer.shadowOpacity = 0.1
             btn.layer.shadowOffset = CGSize(width: 0, height: 4)
             btn.layer.shadowRadius = 16
-            
-            btn.setTitleColor(.black, for: .normal)
         }
         
         // select "All" by default

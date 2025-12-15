@@ -38,7 +38,7 @@ class SchedulerViewController: UIViewController {
             previewImageView.image = postImage
             // Optional: Make image corners rounded like the design
             previewImageView.layer.cornerRadius = 8
-            previewImageView.clipsToBounds = true
+
             
             previewCaptionLabel.text = captionText
             previewPlatformLabel.text = platformText

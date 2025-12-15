@@ -17,7 +17,7 @@ class SelectionCell: UICollectionViewCell {
         containerView.layer.cornerRadius = 12
         containerView.layer.borderWidth = 1
         containerView.layer.borderColor = UIColor.systemGray4.cgColor
-        containerView.backgroundColor = .white
+
     }
     
     override var isSelected: Bool {
