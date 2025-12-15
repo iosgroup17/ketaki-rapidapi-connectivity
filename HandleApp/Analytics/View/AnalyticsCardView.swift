@@ -13,27 +13,29 @@ class AnalyticsCardView: UIView {
         super.awakeFromNib()
         setupCardDesign()
     }
-//
+//awakefromnib is called when the view is loaded from a nib or storyboard file.
+// nib files are basically interface builder files that store a set of user interface objects. this is different from viewdidload which is called when a view controller's view is loaded into memory. but awakefromnib is specifically for views loaded from nibs or storyboards and viewdidload is for view controllers. the difference is important because views and view controllers have different lifecycles and responsibilities in an app. awakefromnib is used to perform additional setup or initialization for views after they have been loaded from a nib or storyboard. while viewdidload is used to set up the overall view hierarchy and configure the view controller's properties and behaviors.
     
     private func setupCardDesign() {
 
         self.layer.cornerRadius = 16
         
         // 2. BORDER / STROKE
-        // This adds a thin light grey outline
+        //Adding a thin light grey outline
         self.layer.borderWidth = 1.0
         self.layer.borderColor = UIColor.systemGray5.cgColor
         
         // 3. SHADOW 
-        // "masksToBounds = false" means "Draw outside the lines"
+        // "masksToBounds = false" this is used because if true shadow will be clipped"
         self.layer.masksToBounds = false
+        // clipstobounds false is used to allow shadow to be visible outside the view bounds
         self.clipsToBounds = false
         
         // Shadow Specs
         self.layer.shadowColor = UIColor.black.cgColor
         self.layer.shadowOpacity = 0.10  // Visibility
-        self.layer.shadowOffset = CGSize(width: 0, height: 4) // Push shadow down
-        self.layer.shadowRadius = 6      // Blur amount
+        self.layer.shadowOffset = CGSize(width: 0, height: 4) // this will push shadow down
+        self.layer.shadowRadius = 6      // it will specify the blur amount
     }
 }
 
