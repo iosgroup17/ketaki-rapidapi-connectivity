@@ -67,11 +67,11 @@ class DiscoverViewController: UIViewController {
     }
     
     func applyFilter() {
-        // 1. Check if we want everything
+        //everything
         if currentPlatformFilter == "All" {
             recommendations = allRecommendations
         } else {
-            // 2. Filter strictly by the name (e.g., "Instagram", "LinkedIn", "X")
+        // 2. Filter by name (Instagram, LinkedIn, X)
             recommendations = allRecommendations.filter { rec in
                 return rec.platformIcon == currentPlatformFilter
             }
@@ -102,14 +102,12 @@ class DiscoverViewController: UIViewController {
                 
                 header.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: -8, bottom: 0, trailing: 16)
                 
-                // ITEM  — Your cell fills the group
                 let itemSize = NSCollectionLayoutSize(
                     widthDimension: .fractionalWidth(1.0),
                     heightDimension: .fractionalHeight(1.0)
                 )
                 let item = NSCollectionLayoutItem(layoutSize: itemSize)
                 
-                // This matches YOUR XIB width (~170)
                 let groupSize = NSCollectionLayoutSize(
                     widthDimension: .absolute(170),
                     heightDimension: .absolute(170)
@@ -121,7 +119,7 @@ class DiscoverViewController: UIViewController {
                 )
                 
                 let sectionLayout = NSCollectionLayoutSection(group: group)
-                sectionLayout.orthogonalScrollingBehavior = .continuous   // NOT centered!!
+                sectionLayout.orthogonalScrollingBehavior = .continuous
                 sectionLayout.interGroupSpacing = 18
                 sectionLayout.contentInsets = NSDirectionalEdgeInsets(
                     top: 4, leading: 16, bottom: 16, trailing: 16
@@ -133,8 +131,7 @@ class DiscoverViewController: UIViewController {
             }
             
             if section == 1 {
-                
-                // HEADER
+
                 let headerSize = NSCollectionLayoutSize(
                     widthDimension: .fractionalWidth(1.0),
                     heightDimension: .absolute(40)
@@ -160,18 +157,16 @@ class DiscoverViewController: UIViewController {
                     heightDimension: .absolute(50)
                 )
                 
-                // Use .horizontal to flow items left-to-right
+                // Use .horizontal for horizontal flow ( L - R )
                 let group = NSCollectionLayoutGroup.horizontal(
                     layoutSize: groupSize,
                     subitems: [item]
                 )
-                
-                // Space between items inside the row
+
                 group.interItemSpacing = .fixed(5)
                 
-                // SECTION
                 let sectionLayout = NSCollectionLayoutSection(group: group)
-                sectionLayout.interGroupSpacing = 9 // Space between rows
+                sectionLayout.interGroupSpacing = 9
                 
                 sectionLayout.contentInsets = NSDirectionalEdgeInsets(
                     top: 10, leading: 16, bottom: 20, trailing: 16
@@ -183,7 +178,7 @@ class DiscoverViewController: UIViewController {
             }
             
             if section == 2 {
-                // Item & Group (Full Width, Height 60 for buttons)
+                
                 let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalHeight(1.0))
                 let item = NSCollectionLayoutItem(layoutSize: itemSize)
                 
@@ -211,21 +206,17 @@ class DiscoverViewController: UIViewController {
                 
                 return sectionLayout
             }
-            
-            // --- SECTION 3: THE CARDS ---
-            // This section contains ONLY the cards. It has NO header.
+
             if section == 3 {
                 let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalHeight(1.0))
                 let item = NSCollectionLayoutItem(layoutSize: itemSize)
                 
-                // Your Card Height (167)
                 let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(167))
                 let group = NSCollectionLayoutGroup.vertical(layoutSize: groupSize, subitems: [item])
                 
                 let sectionLayout = NSCollectionLayoutSection(group: group)
                 sectionLayout.interGroupSpacing = 20
-                
-                // Small top padding to separate slightly from filters
+
                 sectionLayout.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16)
                 
                 return sectionLayout
@@ -289,12 +280,11 @@ extension DiscoverViewController: UICollectionViewDataSource, UICollectionViewDe
         if indexPath.section == 2 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "FilterCellCollectionViewCell", for: indexPath) as! FilterCellCollectionViewCell
             
-            // Connect the delegate so we receive clicks
             cell.delegate = self
             
             return cell
         }
-        // SECTION 2: Recommendations
+ 
         if indexPath.section == 3 {
                     let cell = collectionView.dequeueReusableCell(
                         withReuseIdentifier: "RecommendationsCollectionViewCell",
@@ -303,7 +293,6 @@ extension DiscoverViewController: UICollectionViewDataSource, UICollectionViewDe
                     
                     let rec = recommendations[indexPath.row]
                     
-                    // Directly passing the platform string from JSON.
                     cell.configure(
                         platform: rec.platformIcon,
                         image: UIImage(named: rec.image),
@@ -312,8 +301,7 @@ extension DiscoverViewController: UICollectionViewDataSource, UICollectionViewDe
                     )
                     return cell
                 }
-        
-                // Placeholder for remaining sections
+
                 return UICollectionViewCell()
         }
     
@@ -338,8 +326,7 @@ extension DiscoverViewController: UICollectionViewDataSource, UICollectionViewDe
 
             return header
         }
-    
-    // Handle Clicks
+
         func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
             
             if indexPath.section == 1 {
@@ -352,11 +339,11 @@ extension DiscoverViewController: UICollectionViewDataSource, UICollectionViewDe
                     let storyboard = UIStoryboard(name: "Discover", bundle: nil)
                     if let topicVC = storyboard.instantiateViewController(withIdentifier: "TopicIdeasVC") as? TopicIdeaViewController {
                         
-                        // Pass Data
+                        // Data passing
                         topicVC.currentTopicGroup = selectedGroup
                         topicVC.allPostDetails = self.ideasResponse.selectedPostDetails
                         
-                        // NEW: Pass the Title
+                        // Title passing
                         topicVC.pageTitle = selectedName
                         
                         self.navigationController?.pushViewController(topicVC, animated: true)
@@ -367,7 +354,7 @@ extension DiscoverViewController: UICollectionViewDataSource, UICollectionViewDe
             
             var selectedID = ""
             
-            // 1. Find which ID was clicked
+            // ID selection
             if indexPath.section == 0 {
                 selectedID = topIdeas[indexPath.row].id
             } else if indexPath.section == 3 {
@@ -376,16 +363,15 @@ extension DiscoverViewController: UICollectionViewDataSource, UICollectionViewDe
                 return
             }
             
-            // 2. Lookup the Full Details in your "Master List"
-            // We look inside the 'selectedPostDetails' list
+            // List look up
             guard let fullDetails = ideasResponse.selectedPostDetails.first(where: { $0.id == selectedID }) else {
                 print("Error: Could not find details for ID: \(selectedID)")
                 return
             }
             
-            // 3. Create the Envelope
+
             let draft = EditorDraftData(
-                platformName: fullDetails.platformName ?? "Unknown", // Get name from JSON details
+                platformName: fullDetails.platformName ?? "Unknown",
                 platformIconName: fullDetails.platformIconId ?? "icon-instagram",
                 caption: fullDetails.fullCaption ?? "",
                 images: fullDetails.images ?? [],
@@ -396,13 +382,12 @@ extension DiscoverViewController: UICollectionViewDataSource, UICollectionViewDe
             performSegue(withIdentifier: "ShowEditorSegue", sender: draft)
         }
         
-        // Pass the data before the screen opens
         override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
             if segue.identifier == "ShowEditorSegue",
                let editorVC = segue.destination as? EditorSuiteViewController,
                let data = sender as? EditorDraftData {
                 
-                editorVC.draft = data // Hand over the data
+                editorVC.draft = data
             }
         }
   

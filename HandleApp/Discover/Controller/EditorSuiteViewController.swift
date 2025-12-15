@@ -43,20 +43,16 @@ class EditorSuiteViewController: UIViewController {
     }
             func setupNavigationButtons() {
                     if self.navigationController?.viewControllers.first == self {
-                        
-                        // Define your custom Teal color once
 
-                        // 1. Create Cancel button (X)
-                        // This button will inherit the default navigation bar tint color (e.g., system blue).
+
                         let cancelImage = UIImage(systemName: "xmark")
                         let cancelButton = UIBarButtonItem(image: cancelImage, style: .plain, target: self, action: #selector(cancelButtonTapped))
 
-                        // 2. Create Done button (✓) using the *unfilled* checkmark
+
                         let doneImage = UIImage(systemName: "checkmark")
                         let doneButton = UIBarButtonItem(image: doneImage, style: .plain, target: self, action: #selector(doneButtonTapped))
 
-                        // 3. APPLY TEAL COLOR *ONLY* TO THE DONE BUTTON
-                        // Setting the tintColor directly on the UIBarButtonItem only affects that item.
+
                         doneButton.tintColor = .systemTeal
 
                         self.navigationItem.leftBarButtonItem = cancelButton
@@ -66,8 +62,8 @@ class EditorSuiteViewController: UIViewController {
 
 
     @objc func cancelButtonTapped() {
-            // Just close the modal
-            dismiss(animated: true, completion: nil)
+        
+            dismiss(animated: true, completion: nil) // close modal
         }
 
         @objc func doneButtonTapped() {
@@ -75,7 +71,7 @@ class EditorSuiteViewController: UIViewController {
             dismiss(animated: true, completion: nil)
         }
     func setupCollectionViews() {
-            // 1. Assign the Boss (Data Source & Delegate)
+
             imagesCollectionView.dataSource = self
             imagesCollectionView.delegate = self
             
@@ -110,18 +106,18 @@ class EditorSuiteViewController: UIViewController {
     
         }
         
-    // Populate Data (Fill in the blanks)
+
     func populateData() {
             guard let data = draft else {
                 return
             }
             
-            // 1. Set Header
+
             platformNameLabel.text = data.platformName
             platformIconImageView.image = UIImage(named: data.platformIconName)
             captionTextView.text = data.caption
             
-        displayedImages.removeAll() // clear old data
+        displayedImages.removeAll()
             
             for imageName in data.images {
                 if let img = UIImage(named: imageName) {
@@ -131,12 +127,12 @@ class EditorSuiteViewController: UIViewController {
            
 
         imagesCollectionView.reloadData()
-            // 3. Reload Hashtags/Time (Keep as Collection Views)
+
             hashtagCollectionView.reloadData()
             timeCollectionView.reloadData()
         }
     
-    // MARK: - Share Sheet / Publish Action
+    // Share action
     @IBAction func publishButtonTapped(_ sender: UIButton) {
         
         var itemsToShare: [Any] = []
@@ -155,11 +151,11 @@ class EditorSuiteViewController: UIViewController {
 }
 
 
-//Collection View Data Source
+
 extension EditorSuiteViewController: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout{
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        // Simple Switch to decide count
+
         switch collectionView {
         case imagesCollectionView:
                     return displayedImages.count + 1
@@ -179,14 +175,13 @@ extension EditorSuiteViewController: UICollectionViewDataSource, UICollectionVie
             if indexPath.row == displayedImages.count {
                         cell.configureAsAddButton()
                     } else {
-                        // It's a real image, grab it from our array
                         let image = displayedImages[indexPath.row]
                         cell.configure(with: image)
                     }
                     return cell
             
             
-            // 2. Handle Tags & Times (They share the same cell type!)
+            // Handle Tags & Timings
         case hashtagCollectionView, timeCollectionView:
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "HashtagCollectionViewCell", for: indexPath) as! HashtagCollectionViewCell
             
@@ -205,33 +200,32 @@ extension EditorSuiteViewController: UICollectionViewDataSource, UICollectionVie
         }
     }
     
-    // MARK: - Handle Taps (Logic for Add vs Replace)
+
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         
         if collectionView == imagesCollectionView {
 
                 if indexPath.row == displayedImages.count {
                     print("User tapped Add Button")
-                    selectedImageIndex = nil // Set to NIL so the picker knows to ADD a new one
+                    selectedImageIndex = nil
                     showImagePickerOptions()
                 }
-                // User clicked an existing image
+
                 else {
                     print("User tapped Image at index \(indexPath.row) to replace it")
-                    selectedImageIndex = indexPath.row // SAVE the specific index (e.g., 0, 1)
+                    selectedImageIndex = indexPath.row
                     showImagePickerOptions()
                 }
             }
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        
-        // 1. Images: Make them nice rectangular posters
+ 
         if collectionView == imagesCollectionView {
             return CGSize(width: 150, height: 150)
         }
         
-        // 2. Hashtags & Times: Make them pills that fit the text
+
         if collectionView == hashtagCollectionView || collectionView == timeCollectionView {
             
             var text = ""
@@ -241,7 +235,6 @@ extension EditorSuiteViewController: UICollectionViewDataSource, UICollectionVie
                 text = draft?.postingTimes[indexPath.row] ?? ""
             }
             
-            // Calculate width based on text length + padding
             let font = UIFont.systemFont(ofSize: 13, weight: .medium)
             let width = text.size(withAttributes: [.font: font]).width + 30
             
@@ -257,13 +250,13 @@ extension EditorSuiteViewController: UICollectionViewDataSource, UICollectionVie
             if let navVC = segue.destination as? UINavigationController,
                let destinationVC = navVC.topViewController as? SchedulerViewController {
                 
-                // 1. Get the first image name from your draft data
+
                 if let firstImageName = draft?.images.first {
                     // Convert the String name to a UIImage
                     destinationVC.postImage = UIImage(named: firstImageName)
                 }
                 
-                // 2. Pass the rest of the data
+                // Data passing
                 destinationVC.captionText = self.captionTextView.text
                 destinationVC.platformText = draft?.platformName ?? "Instagram Post"
             }
@@ -272,14 +265,14 @@ extension EditorSuiteViewController: UICollectionViewDataSource, UICollectionVie
     
 }
 
-// Image Picker & Navigation
+
 extension EditorSuiteViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
 
     func showImagePickerOptions() {
-        // Create the Action Sheet
+
         let alertController = UIAlertController(title: "Choose Image", message: nil, preferredStyle: .actionSheet)
         
-        // 1. Camera Option
+
         if UIImagePickerController.isSourceTypeAvailable(.camera) {
             let cameraAction = UIAlertAction(title: "Camera", style: .default) { _ in
                 self.openPicker(source: .camera)
@@ -287,7 +280,7 @@ extension EditorSuiteViewController: UIImagePickerControllerDelegate, UINavigati
             alertController.addAction(cameraAction)
         }
         
-        // 2. Library Option
+
         if UIImagePickerController.isSourceTypeAvailable(.photoLibrary) {
             let libraryAction = UIAlertAction(title: "Photo Library", style: .default) { _ in
                 self.openPicker(source: .photoLibrary)
@@ -295,11 +288,11 @@ extension EditorSuiteViewController: UIImagePickerControllerDelegate, UINavigati
             alertController.addAction(libraryAction)
         }
         
-        // 3. Cancel Option
+
         let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
         alertController.addAction(cancelAction)
         
-        // iPad Support (prevents crash on iPad)
+
         if let popover = alertController.popoverPresentationController {
             popover.sourceView = self.view
             popover.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY, width: 0, height: 0)
@@ -313,31 +306,29 @@ extension EditorSuiteViewController: UIImagePickerControllerDelegate, UINavigati
         let picker = UIImagePickerController()
         picker.delegate = self
         picker.sourceType = source
-        picker.allowsEditing = false // Set to true if you want square crop
+        picker.allowsEditing = false
         self.present(picker, animated: true, completion: nil)
     }
     
     
-    // This function runs when the user picks a photo
+
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
        
         guard let image = info[.originalImage] as? UIImage else { return }
             
-            // 2. CHECK THE TRACKER VARIABLE
+
         if let indexToReplace = selectedImageIndex {
-                // CASE A: We have a specific index stored, so REPLACE that exact image.
-            if indexToReplace < displayedImages.count { // Safety check
+
+            if indexToReplace < displayedImages.count {
                 displayedImages[indexToReplace] = image
             }
         } else {
-            // CASE B: The variable is nil, so ADD a new image to the end.
+
             displayedImages.append(image)
         }
-        
-        // 2. Refresh the UI to show the new photo
+
         imagesCollectionView.reloadData()
         
-        // 3. Close the picker
         picker.dismiss(animated: true, completion: nil)
     }
     

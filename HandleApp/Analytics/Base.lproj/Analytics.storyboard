@@ -343,9 +343,9 @@
                                                             </label>
                                                         </subviews>
                                                     </stackView>
-                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="51K" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="kPc-Sc-To2">
-                                                        <rect key="frame" x="291.66666666666669" y="28.333333333333254" width="50.333333333333314" height="33.666666666666657"/>
-                                                        <fontDescription key="fontDescription" type="boldSystem" pointSize="28"/>
+                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="51k" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="kPc-Sc-To2">
+                                                        <rect key="frame" x="296" y="28.333333333333254" width="46" height="33.666666666666657"/>
+                                                        <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="28"/>
                                                         <nil key="textColor"/>
                                                         <nil key="highlightedColor"/>
                                                     </label>
@@ -389,9 +389,9 @@
                                                             </label>
                                                         </subviews>
                                                     </stackView>
-                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="4.3K" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="HfK-JH-oUZ">
-                                                        <rect key="frame" x="279.66666666666669" y="28.333333333333254" width="62.333333333333314" height="33.666666666666657"/>
-                                                        <fontDescription key="fontDescription" type="boldSystem" pointSize="28"/>
+                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="4.3k" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="HfK-JH-oUZ">
+                                                        <rect key="frame" x="284.66666666666669" y="28.333333333333254" width="57.333333333333314" height="33.666666666666657"/>
+                                                        <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="28"/>
                                                         <nil key="textColor"/>
                                                         <nil key="highlightedColor"/>
                                                     </label>
@@ -1102,7 +1102,7 @@
         <image name="icon-instagram" width="32" height="32"/>
         <image name="icon-linkedin" width="35" height="30"/>
         <image name="icon-x" width="28" height="28"/>
-        <image name="image 15" width="400" height="267"/>
+        <image name="image 15" width="1536" height="1024"/>
         <image name="medal.star" catalog="system" width="92" height="128"/>
         <image name="xmark.circle" catalog="system" width="128" height="123"/>
         <systemColor name="labelColor">

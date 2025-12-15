@@ -244,7 +244,7 @@ class ProfileViewController: UIViewController {
         // 5. Present it nicely as a sheet
         editorVC.modalPresentationStyle = .pageSheet
         if let sheet = editorVC.sheetPresentationController {
-            sheet.detents = [.medium(), .large()]
+            sheet.detents = [.large()]
             sheet.prefersGrabberVisible = true
         }
         

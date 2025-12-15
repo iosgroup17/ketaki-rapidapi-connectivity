@@ -78,19 +78,18 @@ extension TopicIdeaViewController: UICollectionViewDataSource, UICollectionViewD
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
             
-            // 1. Identify which idea was clicked
+            //Identify which idea was clicked
             guard let selectedIdea = currentTopicGroup?.ideas[indexPath.row] else { return }
             
             print("Selected ID: \(selectedIdea.id)")
             
-            // 2. Look up the full details in the master list using the ID
-            // Note: We use the first match. If ID is missing in JSON, this fails safely.
+            //Look up the full details in the master list using the ID
             guard let detail = allPostDetails.first(where: { $0.id == selectedIdea.id }) else {
                 print("❌ Details not found for ID: \(selectedIdea.id). Check your JSON IDs.")
                 return
             }
             
-            // 3. Create the Draft Object
+            //Create the Draft Object
             let draft = EditorDraftData(
                 platformName: detail.platformName ?? "Instagram",
                 platformIconName: detail.platformIconId ?? "icon-instagram",
@@ -100,7 +99,7 @@ extension TopicIdeaViewController: UICollectionViewDataSource, UICollectionViewD
                 postingTimes: detail.optimalPostingTimes ?? []
             )
             
-            // 4. Navigate to Editor
+            //Navigate to Editor
             let storyboard = UIStoryboard(name: "Discover", bundle: nil)
             if let editorVC = storyboard.instantiateViewController(withIdentifier: "EditorSuiteViewController") as? EditorSuiteViewController {
                 

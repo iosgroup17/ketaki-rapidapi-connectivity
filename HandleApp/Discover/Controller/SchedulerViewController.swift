@@ -36,7 +36,6 @@ class SchedulerViewController: UIViewController {
     private func setupInitialUI() {
             // Populate preview data
             previewImageView.image = postImage
-            // Optional: Make image corners rounded like the design
             previewImageView.layer.cornerRadius = 8
 
             
@@ -44,9 +43,7 @@ class SchedulerViewController: UIViewController {
             previewPlatformLabel.text = platformText
             
             // Configure Pickers initial state
-            // Ensure Date picker is set to Inline style in storyboard for calendar view
             datePicker.datePickerMode = .date
-            // Ensure Time picker is set to Time mode in storyboard
             timePicker.datePickerMode = .time
             
             // Ensure switches match the hidden state of pickers initially
@@ -57,8 +54,7 @@ class SchedulerViewController: UIViewController {
 
     @IBAction func dateSwitchToggled(_ sender: UISwitch) {
         view.endEditing(true)
-                
-                // Update the Blue Label immediately when switch turns on
+
                 if sender.isOn {
                     updateDateLabel()
                     dateDetailLabel.isHidden = false
@@ -82,7 +78,6 @@ class SchedulerViewController: UIViewController {
     @IBAction func timeSwitchToggled(_ sender: UISwitch) {
         view.endEditing(true)
                 
-                // Update the Blue Label immediately when switch turns on
                 if sender.isOn {
                     updateTimeLabel()
                     timeDetailLabel.isHidden = false
@@ -113,14 +108,13 @@ class SchedulerViewController: UIViewController {
     
     func updateDateLabel() {
             let formatter = DateFormatter()
-            // Normal Date: "Mon, Dec 9, 2025"
             formatter.dateFormat = "E, MMM d, yyyy"
             dateDetailLabel.text = formatter.string(from: datePicker.date)
         }
     
     func updateTimeLabel() {
         let formatter = DateFormatter()
-        formatter.timeStyle = .short // "8:00 PM"
+        formatter.timeStyle = .short
         timeDetailLabel.text = formatter.string(from: timePicker.date)
     }
     
@@ -129,7 +123,6 @@ class SchedulerViewController: UIViewController {
         }
     
     @IBAction func scheduleButtonTapped(_ sender: UIBarButtonItem) {
-            // Here you would combine the date and time and save the schedule
             
             let selectedDate = dateSwitch.isOn ? datePicker.date : nil
             let selectedTime = timeSwitch.isOn ? timePicker.date : nil
@@ -141,8 +134,7 @@ class SchedulerViewController: UIViewController {
             if let time = selectedTime {
                  print("Time selected: \(time)")
             }
-            
-            // TODO: Add your actual saving logic here (e.g., save to CoreData, Firebase, etc.)
+
         dismiss(animated: true, completion: nil)
         }
 
