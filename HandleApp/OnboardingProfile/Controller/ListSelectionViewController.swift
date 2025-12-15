@@ -24,10 +24,9 @@ class ListSelectionViewController: UIViewController, UICollectionViewDataSource,
         
         setupLayout()
         
-        // We cast strictly to [String] because we know we saved it as an array
         if let savedArray = OnboardingDataStore.shared.userAnswers[stepIndex] as? [String] {
             
-            // Loop through our items
+            // loop through items and select corresponding cells
             for (index, item) in items.enumerated() {
                 
                 // Check if the array contains this title
@@ -102,20 +101,18 @@ class ListSelectionViewController: UIViewController, UICollectionViewDataSource,
     
     func saveSelection() {
         
-        // 1. Get all selected items (Works for Single AND Multi select)
-        // If nothing is selected, we default to an empty list []
+        // get all selected index paths
+        // if no selection, this will be empty
         let selectedIndexPaths = collectionView.indexPathsForSelectedItems ?? []
         
-        // 2. Convert IndexPaths to Strings
-        // Example Single: ["Founder"]
-        // Example Multi: ["Revenue", "Networking"]
+        // convert index paths to titles
         let selectedTitles: [String] = selectedIndexPaths.map { indexPath in
             return items[indexPath.row].title
         }
         
         print("Step \(stepIndex) Saved: \(selectedTitles)")
         
-        // 3. Save to DataStore (Always as an Array)
+        // save to data store
         OnboardingDataStore.shared.saveAnswer(stepIndex: stepIndex, value: selectedTitles)
     }
     

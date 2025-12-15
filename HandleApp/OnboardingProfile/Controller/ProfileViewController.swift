@@ -2,17 +2,17 @@ import UIKit
 
 class ProfileViewController: UIViewController {
     
-    // 1. The Image at the top
+    //The Image at the top
     @IBOutlet weak var profileImageView: UIImageView!
     @IBOutlet weak var completionProgress: UIProgressView!
     
-    // 2. The Card Backgrounds (To apply shadow/corners)
+    //The Card Backgrounds (To apply shadow/corners)
     @IBOutlet weak var accountCardView: UIView!
     @IBOutlet weak var detailsCardView: UIView!
     @IBOutlet weak var socialCardView: UIView!
     @IBOutlet weak var progressCardView: UIView!
     
-    // 3. The Stack Views INSIDE the cards (Where we inject rows)
+    //The Stack Views INSIDE the cards (Where we inject rows)
     @IBOutlet weak var accountStack: UIStackView!
     @IBOutlet weak var detailsStack: UIStackView!
     @IBOutlet weak var socialStack: UIStackView!
@@ -38,14 +38,13 @@ class ProfileViewController: UIViewController {
         
         let cards = [accountCardView, detailsCardView, socialCardView, progressCardView]
         for card in cards {
-            // Safe check for optionals
             if let c = card {
                 c.backgroundColor = .white
-                c.layer.cornerRadius = 16 // Smooth curve
+                c.layer.cornerRadius = 16
                 
                 // Subtle Drop Shadow
                 c.layer.shadowColor = UIColor.black.cgColor
-                c.layer.shadowOpacity = 0.06 // Very light and clean
+                c.layer.shadowOpacity = 0.06 
                 c.layer.shadowOffset = CGSize(width: 0, height: 4)
                 c.layer.shadowRadius = 8
             }
@@ -67,10 +66,10 @@ class ProfileViewController: UIViewController {
     func loadData() {
         let store = OnboardingDataStore.shared
         
-        // 1. Update Progress
+        //Update Progress
         completionProgress.setProgress(store.completionPercentage, animated: false)
         
-        // 2. Clear Old Rows
+        //Clear Old Rows
         accountStack.arrangedSubviews.forEach { subview in
             subview.removeFromSuperview()
         }
@@ -83,15 +82,15 @@ class ProfileViewController: UIViewController {
             subview.removeFromSuperview()
         }
 
-        // Display Name Row
+        // name
         addRow(to: accountStack, title: "Display Name", value: store.displayName ?? "", showIcon: false) {
             self.showTextInput(title: "Edit Name", currentValue: store.displayName) { text in
-                store.displayName = text // Save to Store
-                self.loadData()          // Refresh UI
+                store.displayName = text
+                self.loadData()          
             }
         }
         
-        // Bio Row
+        // bio
         addRow(to: accountStack, title: "Short Bio", value: store.shortBio ?? "", showIcon: false) {
             self.showTextInput(title: "Edit Bio", currentValue: store.shortBio) { text in
                 store.shortBio = text
@@ -99,33 +98,31 @@ class ProfileViewController: UIViewController {
             }
         }
       
-        // Role (Step 0)
+        // role
         let role = (store.userAnswers[0] as? [String])?.first ?? ""
         addRow(to: detailsStack, title: "Role", value: role) {
             self.openEditor(forStep: 0)
         }
         
-        // Industry (Step 2)
+        // industry
         let industry = (store.userAnswers[2] as? [String])?.first ?? ""
         addRow(to: detailsStack, title: "Industry", value: industry) {
             self.openEditor(forStep: 2)
         }
         
-        // Goals (Step 1 - Multi Select)
+        // goals
         let goals = (store.userAnswers[1] as? [String])?.joined(separator: ", ") ?? ""
         addRow(to: detailsStack, title: "Goals", value: goals) {
             self.openEditor(forStep: 1)
         }
         
+        // content formats
         let formats = (store.userAnswers[3] as? [String])?.joined(separator: ", ") ?? ""
-        
-        // Add the row
         addRow(to: detailsStack, title: "Formats", value: formats) {
-            // Open the specific question (Index 3)
             self.openEditor(forStep: 3)
         }
         
-        // 3. TARGET AUDIENCE (Assuming Step 3)
+        // target audience
         let audienceList = store.userAnswers[5] as? [String]
         let audience = audienceList?.joined(separator: ", ") ?? "General"
         
@@ -148,7 +145,7 @@ class ProfileViewController: UIViewController {
      
         for (platform, isConnected) in store.socialStatus {
             addRow(to: socialStack, title: platform, value: "", isToggle: true, isConnected: isConnected) {
-                // This block runs when toggle is switched (handled inside ProfileRow technically)
+                // block is empty so that the tap action does nothing
             }
         }
         
@@ -159,20 +156,20 @@ class ProfileViewController: UIViewController {
     
     func addRow(to stack: UIStackView, title: String, value: String, isToggle: Bool = false, isConnected: Bool = false, showIcon: Bool = true, action: @escaping () -> Void) {
         
-        // 1. Create the Row
+        // create row
         let row = ProfileRow()
         
-        // 2. Configure Data
+        // configure row with data
         row.configure(title: title, value: value, isToggle: isToggle, isConnected: isConnected, showIcon: showIcon)
         
-        // 3. Assign Tap Action
+        // assign action
         row.tapAction = action
         
-        // 5. Layout Constraints
+        // set height constraint
         row.translatesAutoresizingMaskIntoConstraints = false
         row.heightAnchor.constraint(equalToConstant: 50).isActive = true
         
-        // 6. Add to Stack
+        // add to stack
         stack.addArrangedSubview(row)
     }
     
@@ -199,23 +196,8 @@ class ProfileViewController: UIViewController {
         present(alert, animated: true)
     }
     
-    func navigateToQuiz(stepIndex: Int) {
-        // 1. Instantiate the Parent Onboarding Controller
-        guard let vc = storyboard?.instantiateViewController(withIdentifier: "OnboardingParentVC") as? OnboardingViewController else {
-            print("Error: Could not find OnboardingViewController")
-            return
-        }
-        
-        // 2. We need a way to tell it "Start at Step X"
-        vc.currentStepIndex = stepIndex
-        
-        // 3. Present it
-        vc.modalPresentationStyle = .fullScreen
-        present(vc, animated: true)
-    }
-    
     func hideLastSeparator(in stack: UIStackView) {
-        // Find the last row in the stack and hide its line
+        // find the last row in the stack and hide its line
         if let lastRow = stack.arrangedSubviews.last as? ProfileRow {
             lastRow.separatorLine.isHidden = true
         }
@@ -223,25 +205,23 @@ class ProfileViewController: UIViewController {
     
     func openEditor(forStep stepIndex: Int) {
         
-        // 1. Find the Onboarding Storyboard
         let storyboard = UIStoryboard(name: "Profile", bundle: nil)
         
-        // 2. Create the Onboarding View Controller
+        // instantiate onboardingVC here
         guard let editorVC = storyboard.instantiateViewController(withIdentifier: "OnboardingParentVC") as? OnboardingViewController else {
             print("Error: Could not find OnboardingViewController. Check Storyboard ID.")
             return
         }
         
-        // 3. Configure it for "Edit Mode"
+        // configure for editing 
         editorVC.currentStepIndex = stepIndex
         editorVC.isEditMode = true
         
-        // 4. Present it nicely as a sheet
+        // present as sheet
         editorVC.onDismiss = { [weak self] in
             self?.loadData()
         }
         
-        // 5. Present it nicely as a sheet
         editorVC.modalPresentationStyle = .pageSheet
         if let sheet = editorVC.sheetPresentationController {
             sheet.detents = [.large()]

@@ -12,7 +12,7 @@ class OnboardingViewController: UIViewController {
     @IBOutlet weak var descLabel: UILabel!
     
     public var currentStepIndex: Int = 0
-    private var currentChildViewController: UIViewController?
+    var currentChildViewController: UIViewController?
     var isEditMode: Bool = false
     var onDismiss: (() -> Void)?
     
@@ -26,36 +26,34 @@ class OnboardingViewController: UIViewController {
     }
     
     func setupForEditing() {
-        // 1. Hide "Quiz" Context
+        // hide quiz ui
         progressView.isHidden = true
         stepLabel.isHidden = true
         skipButton.isHidden = true
         
         nextButton.setTitle("Save Update", for: .normal)
         
-        // 2. Hide Back Button (Because they can just swipe down to cancel)
+        // hide back button
         backButton.isHidden = true
         
-        // 3. Change "Next" to "Save"
+        // change next button to save
         nextButton.setTitle("Save", for: .normal)
     }
     
     @IBAction func nextButtonTapped(_ sender: UIButton) {
-        // 1. Check if the user has answered the current question
+        // check if current step has an answer
         let hasAnswer = OnboardingDataStore.shared.userAnswers[currentStepIndex] != nil
         
-        // 2. COMPULSORY CHECK: If Step 1 or 2 (index < 2) AND no answer...
+        // checking required steps and adding alert
         if currentStepIndex < 2 && !hasAnswer {
-            // Show Alert and STOP
             showAlert(message: "This step is required. Please select an option.")
             return
         }
         
         if isEditMode {
-            // 1. Run the "Reload" command provided by the Profile screen
+            // run the onDismiss closure to notify parent
             onDismiss?()
 
-            // 2. Close the screen
             dismiss(animated: true, completion: nil)
         } else {
             goToNextStep()
@@ -81,7 +79,6 @@ class OnboardingViewController: UIViewController {
             descLabel.text = desc
             descLabel.isHidden = false
         } else {
-            // If no description, hide the label so it doesn't take up space
             descLabel.text = ""
             descLabel.isHidden = true
         }
@@ -100,12 +97,12 @@ class OnboardingViewController: UIViewController {
             skipButton.isHidden = false
         }
         
-        //Update Header
+        // update question step and progress
         questionLabel.text = stepData.title
         stepLabel.text = "Step \(index + 1) of 6"
         progressView.setProgress(Float(index + 1) / 6.0, animated: true)
         
-        //Instantiate from Storyboard
+        // instantiate and display child VC based on layout type
         let storyboard = self.storyboard ?? UIStoryboard(name: "Profile", bundle: nil)
         let contentVC: UIViewController
         
@@ -123,7 +120,7 @@ class OnboardingViewController: UIViewController {
             vc.stepIndex = index
             contentVC = vc
         }
-        // 3. Display it
+
         displayContentController(contentVC)
     }
     
@@ -149,7 +146,7 @@ class OnboardingViewController: UIViewController {
         currentChildViewController = contentVC
     }
     
-    // Logic to increment index and update UI
+    // logic to increment index and update UI
     func goToNextStep() {
         if currentStepIndex < OnboardingDataStore.shared.steps.count - 1 {
             currentStepIndex += 1
@@ -160,7 +157,7 @@ class OnboardingViewController: UIViewController {
         }
     }
     
-    // Simple Alert Helper
+    // alert helper
     func showAlert(message: String) {
         let alert = UIAlertController(title: "Required", message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .default))
@@ -168,17 +165,16 @@ class OnboardingViewController: UIViewController {
     }
     
     func navigateToProfileScreen() {
-        // 1. Save the flag so next time we skip onboarding
+        // save flag to skip onboarding next time
         UserDefaults.standard.set(true, forKey: "hasCompletedOnboarding")
         
-        // 2. Access the SceneDelegate to swap the root view controller
+        // using scene delegate to switch root VC
         if let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate,
            let window = sceneDelegate.window {
             
-            // 3. Call the helper we wrote in SceneDelegate
+            // call helper showMainApp from scene delegate
             sceneDelegate.showMainApp(window: window)
             
-            // 4. Smooth Transition
             UIView.transition(with: window, duration: 0.5, options: .transitionCrossDissolve, animations: nil, completion: nil)
         }
     }

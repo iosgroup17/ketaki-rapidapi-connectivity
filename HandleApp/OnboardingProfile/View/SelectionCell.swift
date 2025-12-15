@@ -13,7 +13,6 @@ class SelectionCell: UICollectionViewCell {
     }
     
     func setupStyle() {
-        // Make it look like a card
         containerView.layer.cornerRadius = 12
         containerView.layer.borderWidth = 1
         containerView.layer.borderColor = UIColor.systemGray4.cgColor

@@ -104,9 +104,9 @@ class OnboardingDataStore {
     var profileImage: UIImage?
     var displayName: String?
     var shortBio: String?
-    var projects: [String] = [] // List of project names
+    var projects: [String] = [] 
     
-    // 3. Social Connections (Status)
+    // Social Connections (Status)
     var socialStatus: [String: Bool] = [
         "Instagram": false,
         "LinkedIn": false,

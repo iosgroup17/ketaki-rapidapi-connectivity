@@ -17,10 +17,9 @@ class IndustryGridViewController: UIViewController, UICollectionViewDataSource, 
         
         setupGridLayout()
         
-        // We cast strictly to [String] because we know we saved it as an array
         if let savedArray = OnboardingDataStore.shared.userAnswers[stepIndex] as? [String] {
             
-            // Loop through our items
+            // loop through items and select corresponding cells
             for (index, item) in items.enumerated() {
                 
                 // Check if the array contains this title
@@ -63,7 +62,6 @@ class IndustryGridViewController: UIViewController, UICollectionViewDataSource, 
         let selectedItem = items[indexPath.row]
         print("Step 2: Industry - \(selectedItem.title)")
         
-        // WRAP IT IN BRACKETS [] TO MAKE IT AN ARRAY
         OnboardingDataStore.shared.saveAnswer(stepIndex: stepIndex, value: [selectedItem.title])
     }
 }

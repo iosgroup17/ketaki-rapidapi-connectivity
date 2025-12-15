@@ -6,7 +6,6 @@ enum OnboardingLayoutType {
     case singleSelectCards  // Goal
     case grid               // Industry
     case multiSelectCards   // Post Formats, Audience
-    case sliders            // Tone
 }
 
 // Represents a single choice (e.g., "Founder" or "Casual <-> Formal")
