@@ -23,7 +23,7 @@
                             <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Yf9-IS-P87">
                                 <rect key="frame" x="0.0" y="0.0" width="370" height="224"/>
                                 <subviews>
-                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="Vw3-MF-8F3">
+                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="Vw3-MF-8F3">
                                         <rect key="frame" x="12" y="12" width="22" height="22"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="22" id="8C4-Fc-rhM"/>
@@ -31,13 +31,13 @@
                                         </constraints>
                                     </imageView>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="YVC-gO-sG2">
-                                        <rect key="frame" x="50" y="13.999999999999998" width="274" height="20.333333333333329"/>
+                                        <rect key="frame" x="50" y="11.999999999999998" width="274" height="20.333333333333329"/>
                                         <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="chevron.right" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="ES7-hi-jma">
-                                        <rect key="frame" x="340" y="15.999999999999995" width="18" height="12.333333333333352"/>
+                                        <rect key="frame" x="340" y="15.999999999999993" width="18" height="12.333333333333357"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="16" id="ar1-5Z-lRt"/>
                                             <constraint firstAttribute="width" constant="18" id="mvU-XQ-Tsa"/>
@@ -84,7 +84,7 @@
                                 </subviews>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <constraints>
-                                    <constraint firstItem="YVC-gO-sG2" firstAttribute="top" secondItem="Yf9-IS-P87" secondAttribute="top" constant="14" id="2T5-yJ-w8w"/>
+                                    <constraint firstItem="YVC-gO-sG2" firstAttribute="top" secondItem="Yf9-IS-P87" secondAttribute="top" constant="12" id="2T5-yJ-w8w"/>
                                     <constraint firstItem="6fX-J3-jJw" firstAttribute="leading" secondItem="Yf9-IS-P87" secondAttribute="leading" constant="12" id="4SN-Ty-YRi"/>
                                     <constraint firstItem="Nnj-O1-JxO" firstAttribute="top" secondItem="6fX-J3-jJw" secondAttribute="bottom" constant="12" id="5TR-Hp-cKD"/>
                                     <constraint firstItem="ES7-hi-jma" firstAttribute="leading" secondItem="YVC-gO-sG2" secondAttribute="trailing" constant="16" id="76R-Tw-M6E"/>

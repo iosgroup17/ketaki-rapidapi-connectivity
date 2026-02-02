@@ -21,7 +21,7 @@
                         <rect key="frame" x="0.0" y="0.0" width="144" height="30"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="NRj-0b-qec">
-                                <rect key="frame" x="8" y="4" width="128" height="22"/>
+                                <rect key="frame" x="6" y="3" width="132" height="24"/>
                                 <fontDescription key="fontDescription" style="UICTFontTextStyleFootnote"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
@@ -29,11 +29,11 @@
                         </subviews>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
-                            <constraint firstAttribute="trailing" secondItem="NRj-0b-qec" secondAttribute="trailing" constant="8" id="63b-3K-1wI"/>
-                            <constraint firstItem="NRj-0b-qec" firstAttribute="top" secondItem="cHF-mx-MTU" secondAttribute="top" constant="4" id="D1P-AN-1l3"/>
+                            <constraint firstAttribute="trailing" secondItem="NRj-0b-qec" secondAttribute="trailing" constant="6" id="63b-3K-1wI"/>
+                            <constraint firstItem="NRj-0b-qec" firstAttribute="top" secondItem="cHF-mx-MTU" secondAttribute="top" constant="3" id="D1P-AN-1l3"/>
                             <constraint firstItem="NRj-0b-qec" firstAttribute="centerY" secondItem="cHF-mx-MTU" secondAttribute="centerY" id="L3I-6t-2kh"/>
-                            <constraint firstAttribute="bottom" secondItem="NRj-0b-qec" secondAttribute="bottom" constant="4" id="Und-iU-C7W"/>
-                            <constraint firstItem="NRj-0b-qec" firstAttribute="leading" secondItem="cHF-mx-MTU" secondAttribute="leading" constant="8" id="fJx-hl-Y2t"/>
+                            <constraint firstAttribute="bottom" secondItem="NRj-0b-qec" secondAttribute="bottom" constant="3" id="Und-iU-C7W"/>
+                            <constraint firstItem="NRj-0b-qec" firstAttribute="leading" secondItem="cHF-mx-MTU" secondAttribute="leading" constant="6" id="fJx-hl-Y2t"/>
                         </constraints>
                     </view>
                 </subviews>

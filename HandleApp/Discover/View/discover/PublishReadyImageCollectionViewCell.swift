@@ -88,7 +88,7 @@ extension PublishReadyImageCollectionViewCell: UICollectionViewDelegate, UIColle
 
         let textWidth = rawText.size(withAttributes: textAttributes).width
         
-        let totalWidth = ceil(textWidth) + 16
+        let totalWidth = ceil(textWidth) + 12
         
         return CGSize(width: totalWidth, height: 27)
     }
