@@ -94,6 +94,7 @@ class UserIdeaViewController: UIViewController {
                 case .waitingForPlatform:
                     self.selectedPlatform = responseText
                     self.currentStep = .finished
+                    
                     self.fetchAIResponse()
                 
                 case .finished:
@@ -230,7 +231,7 @@ extension UserIdeaViewController {
             let fullQuery = "Idea: \(userIdea). Tone: \(selectedTone). Platform: \(selectedPlatform)."
             
         if !showAnalysisMessage {
-            let loadingMessage = Message(text: "🔍 Generating your draft...", isUser: false, type: .text)
+            let loadingMessage = Message(text: "🔍 Generating your draft on-device...", isUser: false, type: .text)
             messages.append(loadingMessage)
             insertNewMessage()
             showAnalysisMessage = true
@@ -238,25 +239,41 @@ extension UserIdeaViewController {
         
 
         Task {
-            // Using a default profile for now, similar to your existing code
-            let profile = await SupabaseManager.shared.fetchUserProfile() ?? UserProfile(
-                role: ["General User"],
-                industry: ["General"],
-                primaryGoals: ["Growth"],
-                contentFormats: ["Text"],
-                toneOfVoice: [selectedTone], // Use the selected tone!
-                targetAudience: ["Everyone"]
-            )
+                // 2. Create the User Profile Context
+                // (Here we use the default values you had. Later, you can fetch this from Supabase if needed)
+                let profileContext = UserProfile(
+                    professionalIdentity: ["Professional"],
+                    currentFocus: ["General Work"],
+                    industry: ["General"],
+                    primaryGoals: ["Growth"],
+                    contentFormats: ["Text"],
+                    platforms: [self.selectedPlatform],
+                    targetAudience: ["Everyone"]
+                )
+            
+            // 3. Create the Request Object
+                let request = GenerationRequest(
+                    idea: self.userIdea,
+                    tone: self.selectedTone,
+                    platform: self.selectedPlatform,
+                    // Only pass refinement if the string is not empty
+                    refinementInstruction: self.refinement.isEmpty ? nil : self.refinement
+                )
             
             do {
-                // Pass the combined query
-                let draft = try await GeminiService.shared.generateDraft(idea: fullQuery, profile: profile)
+                // 4. Call your new Local Foundation Model
+                let draft = try await PostGenerationModel.shared.generatePost(
+                    profile: profileContext,
+                    request: request
+                )
                 
+                // 5. Update UI on Success
                 await MainActor.run {
                     self.handleSuccess(draft: draft)
                 }
                 
             } catch {
+                            // 6. Handle Errors
                 await MainActor.run {
                     self.handleError(error: error)
                 }

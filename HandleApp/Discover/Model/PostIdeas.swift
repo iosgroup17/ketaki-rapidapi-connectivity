@@ -78,7 +78,7 @@ struct TopicAction: Codable {
 }
 
 struct PostDetail: Codable {
-    let id: String
+    var id: String = UUID().uuidString
     let platformName: String?
     let platformIconId: String?
     let fullCaption: String?
@@ -87,7 +87,6 @@ struct PostDetail: Codable {
     let optimalPostingTimes: [String]?
     
     enum CodingKeys: String, CodingKey {
-        case id
         case images
         case platformName = "platform_name"
         case platformIconId = "platform_icon"

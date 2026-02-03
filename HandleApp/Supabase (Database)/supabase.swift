@@ -154,12 +154,13 @@ extension SupabaseManager {
             
             // mapping data to correct indices
             return UserProfile(
-                role: answers[0] ?? [],
-                industry: answers[1] ?? [],
-                primaryGoals: answers[2] ?? [],
-                contentFormats: answers[3] ?? [],
-                toneOfVoice: answers[4] ?? [],
-                targetAudience: answers[5] ?? []
+                professionalIdentity: answers[0] ?? [], // Step 0: Identity
+                currentFocus: answers[1] ?? [],         // Step 1: Working on
+                industry: answers[2] ?? [],             // Step 2: Domain/Industry
+                primaryGoals: answers[3] ?? [],         // Step 3: Goals
+                contentFormats: answers[4] ?? [],       // Step 4: Formats
+                platforms: answers[5] ?? [],            // Step 5: Platforms (LinkedIn, etc.)
+                targetAudience: answers[6] ?? []        // Step 6: Audience
             )
             
         } catch {
