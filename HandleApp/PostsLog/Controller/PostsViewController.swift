@@ -334,30 +334,9 @@ extension PostsViewController: UITableViewDataSource, UITableViewDelegate {
         }
     }
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-
-        //Edit action
-        let editAction = UIContextualAction(style: .normal, title: "Edit") { [weak self] (action, view, completionHandler) in
-            guard let self = self else {
-                completionHandler(false)
-                return
-            }
-            self.performSegue(withIdentifier: "openEditorModal", sender: indexPath)
-            completionHandler(true)
-        }
-        editAction.backgroundColor = .systemBlue
-        editAction.image = UIImage(systemName: "square.and.pencil")
-        
-        //Schedule Action
-        let scheduleAction = UIContextualAction(style: .normal, title: "Schedule") { [weak self] (action, view, completionHandler) in
-            guard let self = self else { return completionHandler(false) }
-            self.performSegue(withIdentifier: "openSchedulerModal", sender: indexPath)
-            completionHandler(true)
-        }
-        scheduleAction.backgroundColor = .systemGreen
-        scheduleAction.image = UIImage(systemName: "calendar.badge.clock")
         
         //Delete action
-        let deleteAction = UIContextualAction(style: .destructive, title: "Delete") { [weak self] (action, view, completionHandler) in
+        let deleteAction = UIContextualAction(style: .destructive, title: nil) { [weak self] (action, view, completionHandler) in
             guard let self = self else { return }
                     
                     let postToDelete = self.todayScheduledPosts[indexPath.row]
@@ -376,11 +355,15 @@ extension PostsViewController: UITableViewDataSource, UITableViewDelegate {
         }
         deleteAction.image = UIImage(systemName: "trash.fill")
 
-        let configuration = UISwipeActionsConfiguration(actions: [deleteAction, editAction, scheduleAction])
+        let configuration = UISwipeActionsConfiguration(actions: [deleteAction])
         configuration.performsFirstActionWithFullSwipe = false
                 
         return configuration
     }
+     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        self.performSegue(withIdentifier: "openEditorModal", sender: indexPath)
+        }
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "openEditorModal" {
             var destinationVC: EditorSuiteViewController?
@@ -403,18 +386,6 @@ extension PostsViewController: UITableViewDataSource, UITableViewDelegate {
                 )
                  
                  editorVC.draft = draftData
-            }
-        }
-        else if segue.identifier == "openSchedulerModal" {
-            if let navVC = segue.destination as? UINavigationController,
-                let schedulerVC = navVC.topViewController as? SchedulerViewController {
-                    if let indexPath = sender as? IndexPath {
-                        let selectedPost: Post
-                        selectedPost = todayScheduledPosts[indexPath.row]
-                        schedulerVC.postImage = UIImage(named: selectedPost.imageName)
-                        schedulerVC.captionText = selectedPost.fullCaption ?? ""
-                        schedulerVC.platformText = selectedPost.platformName
-                    }
             }
         }
     }

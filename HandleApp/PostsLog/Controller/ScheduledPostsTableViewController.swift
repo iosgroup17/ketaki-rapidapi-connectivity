@@ -147,32 +147,9 @@ class ScheduledPostsTableViewController: UITableViewController, UIPopoverPresent
     }
     
     override func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-              
-        // Edit Action
-        let editAction = UIContextualAction(style: .normal, title: "Edit") { [weak self] (action, view, completionHandler) in
-            guard let self = self else {
-                completionHandler(false)
-                    return
-            }
-            self.performSegue(withIdentifier: "openEditorModal", sender: indexPath)
-            completionHandler(true)
-        }
-        editAction.backgroundColor = .systemBlue
-        editAction.image = UIImage(systemName: "square.and.pencil")
-        
-        // Schedule Action
-        let scheduleAction = UIContextualAction(style: .normal, title: "Schedule") { [weak self] (action, view, completionHandler) in
-            guard let self = self else {
-                return completionHandler(false)
-            }
-            self.performSegue(withIdentifier: "openSchedulerModal", sender: indexPath)
-            completionHandler(true)
-        }
-        scheduleAction.backgroundColor = .systemGreen
-        scheduleAction.image = UIImage(systemName: "calendar.badge.clock")
         
         // Delete Action
-        let deleteAction = UIContextualAction(style: .destructive, title: "Delete") { [weak self] (action, view, completionHandler) in
+        let deleteAction = UIContextualAction(style: .destructive, title: nil) { [weak self] (action, view, completionHandler) in
             guard let self = self else { return }
             
             let post: Post
@@ -197,12 +174,15 @@ class ScheduledPostsTableViewController: UITableViewController, UIPopoverPresent
             }
         }
         deleteAction.image = UIImage(systemName: "trash.fill")
-        let configuration = UISwipeActionsConfiguration(actions: [deleteAction, editAction, scheduleAction])
+        let configuration = UISwipeActionsConfiguration(actions: [deleteAction])
         configuration.performsFirstActionWithFullSwipe = false
         
         return configuration
     }
-    
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        self.performSegue(withIdentifier: "openEditorModal", sender: indexPath)
+        }
     //Pass data to scheduler and editor suite VC
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "openEditorModal" {
@@ -229,24 +209,5 @@ class ScheduledPostsTableViewController: UITableViewController, UIPopoverPresent
                  editorVC.draft = draftData
             }
         }
-        else if segue.identifier == "openSchedulerModal" {
-            if let navVC = segue.destination as? UINavigationController,
-                let schedulerVC = navVC.topViewController as? SchedulerViewController {
-                    if let indexPath = sender as? IndexPath {
-                        let selectedPost: Post
-                        if indexPath.section == 0 { selectedPost = scheduledTodayPosts[indexPath.row] }
-                        else if indexPath.section == 1 { selectedPost = scheduledTomorrowPosts[indexPath.row] }
-                        else { selectedPost = scheduledLaterPosts[indexPath.row] }
-                        
-                        schedulerVC.postImage = UIImage(named: selectedPost.imageName) // Convert String to UIImage
-                        schedulerVC.captionText = selectedPost.fullCaption ?? ""
-                        schedulerVC.platformText = selectedPost.platformName
-                    }
-            }
-        }
     }
-    
-    
-
-    
 }

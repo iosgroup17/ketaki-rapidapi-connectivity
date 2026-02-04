@@ -113,7 +113,7 @@ class SavedPostsTableViewController: UITableViewController, UIPopoverPresentatio
     override func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         
         //Delete action
-        let deleteAction = UIContextualAction(style: .destructive, title: "Delete") { [weak self] (action, view, completionHandler) in
+        let deleteAction = UIContextualAction(style: .destructive, title: nil) { [weak self] (action, view, completionHandler) in
                 guard let self = self else { return }
                 
                 let post = self.displayedPosts[indexPath.row]

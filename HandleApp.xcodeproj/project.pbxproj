@@ -187,7 +187,7 @@
 				CODE_SIGN_ENTITLEMENTS = HandleApp/HandleApp.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = KXGY2AGH7Z;
+				DEVELOPMENT_TEAM = QW7NJ52GJ2;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = HandleApp/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -222,7 +222,7 @@
 				CODE_SIGN_ENTITLEMENTS = HandleApp/HandleApp.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = KXGY2AGH7Z;
+				DEVELOPMENT_TEAM = QW7NJ52GJ2;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = HandleApp/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
