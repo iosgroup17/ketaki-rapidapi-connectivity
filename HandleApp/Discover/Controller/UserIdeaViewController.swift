@@ -144,7 +144,7 @@ class UserIdeaViewController: UIViewController {
     
     
     func navigateToEditor(with draft: EditorDraftData) {
-        if let editorVC = storyboard?.instantiateViewController(withIdentifier: "EditorSuiteViewController") as? EditorSuiteViewController {
+        if let editorVC = storyboard?.instantiateViewController(withIdentifier: "EditorModalEntry") as? EditorSuiteViewController {
             
             editorVC.draft = draft
             

@@ -25,8 +25,11 @@ struct TrendingTopic: Codable {
     }
 }
 
-struct PublishReadyPost: Codable {
-    let id: String
+import Foundation
+
+struct PublishReadyPost: Codable, Identifiable {
+    // Make 'id' a var so we can safely assign it in the init without conflict
+    var id: String
     let topicDetailId: String?
     let postHeading: String
     let platformIcon: String
@@ -42,6 +45,37 @@ struct PublishReadyPost: Codable {
         case platformIcon = "platform_icon"
         case postImage = "post_image"
         case predictionText = "prediction_text"
+    }
+    
+    // Custom Decoder
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        
+        // 1. ID Logic: Try to decode (from Supabase), otherwise generate new (from AI)
+        self.id = try container.decodeIfPresent(String.self, forKey: .id) ?? UUID().uuidString
+        
+        // 2. Optional Fields
+        self.topicDetailId = try container.decodeIfPresent(String.self, forKey: .topicDetailId)
+        self.postImage = try container.decodeIfPresent([String].self, forKey: .postImage)
+        
+        // 3. Required Fields (AI must provide these)
+        self.postHeading = try container.decode(String.self, forKey: .postHeading)
+        self.platformIcon = try container.decode(String.self, forKey: .platformIcon)
+        self.caption = try container.decode(String.self, forKey: .caption)
+        self.hashtags = try container.decode([String].self, forKey: .hashtags)
+        self.predictionText = try container.decode(String.self, forKey: .predictionText)
+    }
+    
+    // Helper init for manual creation if needed
+    init(postHeading: String, platformIcon: String, caption: String, hashtags: [String], predictionText: String) {
+        self.id = UUID().uuidString
+        self.topicDetailId = nil
+        self.postHeading = postHeading
+        self.platformIcon = platformIcon
+        self.caption = caption
+        self.postImage = nil
+        self.hashtags = hashtags
+        self.predictionText = predictionText
     }
 }
 

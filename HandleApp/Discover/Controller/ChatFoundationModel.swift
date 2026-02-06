@@ -69,7 +69,7 @@ actor PostGenerationModel {
         let prompt = """
         You are an expert Social Media Manager.
         
-        \(profile.systemPromptDescription)
+        \(profile.promptContext)
         
         TASK:
         Write a social media post based on these inputs:
@@ -118,5 +118,11 @@ actor PostGenerationModel {
                 }
                 return cleanText.trimmingCharacters(in: .whitespacesAndNewlines)
             }
+}
+
+enum ContentError: Error {
+    case jsonParsingFailed
+    case modelAssetsMissing
+    case noJSONFound
 }
 

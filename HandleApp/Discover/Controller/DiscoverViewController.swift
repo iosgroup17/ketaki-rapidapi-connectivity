@@ -73,30 +73,90 @@ class DiscoverViewController: UIViewController {
         }
     }
     
-    func loadSupabaseData() async {
-        print("Starting Supabase Fetch ")
-        
-        do {
+//    func loadSupabaseData() async {
+//        print("Starting Supabase Fetch ")
+//        
+//        do {
+//            
+//            let fetchedData = try await SupabaseManager.shared.loadPostsIdeas()
+//            
+//            await MainActor.run {
+//                print("Data Received. Updating UI...")
+//                
+//                self.ideasResponse = fetchedData
+//                
+//                self.trendingTopics = fetchedData.trendingTopics
+//                self.topicDetails = fetchedData.topicDetails
+//                
+//                self.publishReadyPosts = fetchedData.publishReadyPosts
+//                
+//                self.collectionView.reloadData()
+//            }
+//            
+//        } catch {
+//            print("Error loading data: \(error.localizedDescription)")
+//        }
+//    }
+    
+    // In DiscoverViewController.swift
+
+        func loadSupabaseData() async {
+            print("🚀 Starting Hybrid Data Load...")
             
-            let fetchedData = try await SupabaseManager.shared.loadPostsIdeas()
-            
-            await MainActor.run {
-                print("Data Received. Updating UI...")
+            do {
+                // 1. Fetch Supabase Data (Trends, Details, etc.)
+                // We still need this to populate Section 1 (Trending Topics)
+                let fetchedData = try await SupabaseManager.shared.loadPostsIdeas()
                 
-                self.ideasResponse = fetchedData
+                // 2. Fetch User Profile (Needed for the AI prompt context)
+                guard let userProfile = await SupabaseManager.shared.fetchUserProfile() else {
+                    print("⚠️ No user profile found. Cannot generate posts.")
+                    return
+                }
+
+                // 3. Update UI with Supabase Data (Trends) immediately
+                await MainActor.run {
+                    self.ideasResponse = fetchedData
+                    self.trendingTopics = fetchedData.trendingTopics
+                    self.topicDetails = fetchedData.topicDetails
+                    // We do NOT set self.publishReadyPosts here yet,
+                    // because we want to overwrite/fill them with AI data.
+                    self.collectionView.reloadData()
+                }
                 
-                self.trendingTopics = fetchedData.trendingTopics
-                self.topicDetails = fetchedData.topicDetails
+                // 4. Select a Trend for the AI
+                // We grab the top trending topic to feed the generator
+                let topTrendName = fetchedData.trendingTopics.first?.topicName ?? "Digital Marketing Trends"
+                let topTrendDesc = fetchedData.trendingTopics.first?.shortDescription ?? "Latest industry shifts"
+                let combinedTrendText = "\(topTrendName): \(topTrendDesc)"
                 
-                self.publishReadyPosts = fetchedData.publishReadyPosts
+                print("🤖 Generative AI: Starting generation for trend: \(topTrendName)")
                 
-                self.collectionView.reloadData()
+                // 5. Generate Posts on Device
+                // Note: This might take 2-5 seconds depending on the device
+                let generatedPosts = try await OnDevicePostEngine.shared.generatePublishReadyPosts(
+                    trendText: combinedTrendText,
+                    context: userProfile
+                )
+                
+                // 6. Update UI with AI Posts (Section 2)
+                await MainActor.run {
+                    print("✅ AI Generation Complete. Reloading Section 2.")
+                    self.publishReadyPosts = generatedPosts
+                    
+                    // Only reload the "Publish Ready" section (Section 2) to avoid flickering the trends
+                    let sectionIndex = 2
+                    self.collectionView.reloadSections(IndexSet(integer: sectionIndex))
+                }
+                
+                // 7. (Optional) Save these generated posts back to Supabase?
+                // If you want them to persist for next time, uncomment below:
+                // try await SupabaseManager.shared.saveGeneratedPosts(generatedPosts)
+                
+            } catch {
+                print("❌ Error in Hybrid Load: \(error.localizedDescription)")
             }
-            
-        } catch {
-            print("Error loading data: \(error.localizedDescription)")
         }
-    }
     
     func generateLayout() -> UICollectionViewLayout {
         
