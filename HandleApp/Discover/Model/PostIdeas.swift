@@ -25,11 +25,10 @@ struct TrendingTopic: Codable {
     }
 }
 
-import Foundation
 
 struct PublishReadyPost: Codable, Identifiable {
-    // Make 'id' a var so we can safely assign it in the init without conflict
-    var id: String
+    var id: String = UUID().uuidString
+    
     let topicDetailId: String?
     let postHeading: String
     let platformIcon: String
@@ -39,34 +38,39 @@ struct PublishReadyPost: Codable, Identifiable {
     let predictionText: String
     
     enum CodingKeys: String, CodingKey {
-        case id, caption, hashtags
+        case id
         case topicDetailId = "topic_detail_id"
         case postHeading = "post_heading"
         case platformIcon = "platform_icon"
+        case caption
         case postImage = "post_image"
+        case hashtags
         case predictionText = "prediction_text"
     }
     
-    // Custom Decoder
+    // ✅ ROBUST DECODER: Never fails on missing keys
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
-        // 1. ID Logic: Try to decode (from Supabase), otherwise generate new (from AI)
+        // 1. ID: Try decode, else generate
         self.id = try container.decodeIfPresent(String.self, forKey: .id) ?? UUID().uuidString
-        
-        // 2. Optional Fields
         self.topicDetailId = try container.decodeIfPresent(String.self, forKey: .topicDetailId)
-        self.postImage = try container.decodeIfPresent([String].self, forKey: .postImage)
         
-        // 3. Required Fields (AI must provide these)
-        self.postHeading = try container.decode(String.self, forKey: .postHeading)
-        self.platformIcon = try container.decode(String.self, forKey: .platformIcon)
-        self.caption = try container.decode(String.self, forKey: .caption)
-        self.hashtags = try container.decode([String].self, forKey: .hashtags)
-        self.predictionText = try container.decode(String.self, forKey: .predictionText)
+        // 2. REQUIRED FIELDS (With Fallbacks)
+        // If the AI or Database returns null/missing, we default to a safe value instead of crashing.
+        self.postHeading = try container.decodeIfPresent(String.self, forKey: .postHeading) ?? "New Idea"
+        self.platformIcon = try container.decodeIfPresent(String.self, forKey: .platformIcon) ?? "icon-linkedin"
+        self.caption = try container.decodeIfPresent(String.self, forKey: .caption) ?? ""
+        
+        // 3. ARRAYS
+        self.postImage = try container.decodeIfPresent([String].self, forKey: .postImage)
+        self.hashtags = try container.decodeIfPresent([String].self, forKey: .hashtags) ?? []
+        
+        // 4. PREDICTION
+        self.predictionText = try container.decodeIfPresent(String.self, forKey: .predictionText) ?? "AI Generated Insight"
     }
     
-    // Helper init for manual creation if needed
+    // Helper init for manual creation
     init(postHeading: String, platformIcon: String, caption: String, hashtags: [String], predictionText: String) {
         self.id = UUID().uuidString
         self.topicDetailId = nil

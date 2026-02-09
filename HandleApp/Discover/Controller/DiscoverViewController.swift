@@ -423,37 +423,63 @@ extension DiscoverViewController: UICollectionViewDataSource, UICollectionViewDe
             
             
             if indexPath.section == 2 {
-                let selectedID = publishReadyPosts[indexPath.row].id
+                let selectedPost = publishReadyPosts[indexPath.row]
+                        
+                        // 1. Show loading
+                        self.showLoading()
+                        
+                        Task {
+                            do {
+                                guard let profile = await SupabaseManager.shared.fetchUserProfile() else {
+                                    await MainActor.run { self.hideLoading() }
+                                    return
+                                }
+                                
+                                // 2. AI expands the short "Idea" into a full "Draft"
+                                let finalDraft = try await OnDevicePostEngine.shared.refinePostForEditor(
+                                    post: selectedPost,
+                                    context: profile
+                                )
+                                
+                                await MainActor.run {
+                                    self.hideLoading()
+                                    
+                                    // 3. Send the polished draft to the Editor
+                                    self.performSegue(withIdentifier: "ShowEditorSegue", sender: finalDraft)
+                                }
+                            } catch {
+                                await MainActor.run {
+                                    self.hideLoading()
+                                    print("Error refining post: \(error)")
+                                }
+                            }
+                        }
                 
-                // 2. Look up the full details from the separate array using that ID
-                guard let fullDetails = ideasResponse.selectedPostDetails.first(where: { $0.id == selectedID }) else {
-                    print("Error: Could not find details for ID: \(selectedID)")
-                    return
-                }
-                
-                // 3. Create the Draft Data
-                let draft = EditorDraftData(
-                    platformName: fullDetails.platformName ?? "Unknown",
-                    platformIconName: fullDetails.platformIconId ?? "icon-instagram",
-                    caption: fullDetails.fullCaption ?? "",
-                    images: fullDetails.images ?? [],
-                    hashtags: fullDetails.suggestedHashtags ?? [],
-                    postingTimes: fullDetails.optimalPostingTimes ?? []
-                )
-                
-                // 4. Perform Segue
-                performSegue(withIdentifier: "ShowEditorSegue", sender: draft)
-                return
             }
         }
-        override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-            if segue.identifier == "ShowEditorSegue",
-               let editorVC = segue.destination as? EditorSuiteViewController,
-               let data = sender as? EditorDraftData {
-                
-                editorVC.draft = data
-            }
+    
+    func showLoading() {
+        let alert = UIAlertController(title: nil, message: "Generating with AI...", preferredStyle: .alert)
+        let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
+        loadingIndicator.hidesWhenStopped = true
+        loadingIndicator.style = .medium
+        loadingIndicator.startAnimating()
+        alert.view.addSubview(loadingIndicator)
+        present(alert, animated: true, completion: nil)
+    }
+
+    func hideLoading() {
+        dismiss(animated: true, completion: nil)
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "ShowEditorSegue",
+           let editorVC = segue.destination as? EditorSuiteViewController,
+           let data = sender as? EditorDraftData {
+            
+            editorVC.draft = data
         }
+    }
         
     }
 

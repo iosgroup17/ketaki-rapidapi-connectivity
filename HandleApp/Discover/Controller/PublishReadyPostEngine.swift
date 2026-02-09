@@ -5,15 +5,9 @@
 //  Created by SDC-USER on 05/02/26.
 //
 
-//
-//  publishReadyPostEngine.swift
-//  HandleApp
-//
-//  Created by SDC-USER on 05/02/26.
-//
 
 import Foundation
-import FoundationModels
+import FoundationModels // Ensure this matches your specific AI SDK
 
 actor OnDevicePostEngine {
     static let shared = OnDevicePostEngine()
@@ -23,11 +17,13 @@ actor OnDevicePostEngine {
     
     private func ensureSession() async throws -> LanguageModelSession {
         if let existing = session { return existing }
+        // Adjust the model type here if needed (e.g., .nano, .fast, etc.)
         let newSession = LanguageModelSession(model: SystemLanguageModel.default)
         self.session = newSession
         return newSession
     }
-
+    
+    // MARK: - GENERATE LIST OF IDEAS
     func generatePublishReadyPosts(trendText: String, context: UserProfile) async throws -> [PublishReadyPost] {
         let session = try await ensureSession()
         
@@ -45,32 +41,34 @@ actor OnDevicePostEngine {
                 \(trendText)
                 
                 TASK:
-                Generate 6 high-performing social media content ideas.
-                
+                Generate 6 high-performing social media content ideas. 
                 OUTPUT CONSTRAINTS:
-                1. Return ONLY raw JSON.
-                2. No markdown, no explanations.
-                3. All keys must be quoted.
-                4. "post_heading": Max 20 chars, punchy.
-                5. "platform_icon": Must be exactly "icon-x", "icon-instagram", or "icon-linkedin".
-                6. "post_image": Array of strings. Use placeholders "img_01" through "img_16" ONLY if visual is needed.
-                7. "caption": 80-100 chars, conversational.
+                        1. Return ONLY raw JSON.
+                        2. No markdown, no explanations.
+                        3. All keys must be quoted.
+                        4. "post_heading": Max 20 chars, punchy.
+                        5. "platform_icon": Must be exactly "icon-x", "icon-instagram", or "icon-linkedin".
+                        6. "post_image": Array of strings. Use placeholders "img_01" through "img_16" ONLY if visual is needed.
+                        7. "caption": 80-100 chars, conversational. do not add any hashtags here.
+                You MUST wrap the array of objects inside a root JSON object with the key "posts".
                 
                 REQUIRED JSON STRUCTURE:
                 {
                   "posts": [
                     {
-                      "post_heading": "Catchy Headline",
+                      "post_heading": "Headline",
                       "platform_icon": "icon-linkedin",
                       "post_image": ["img_01"],
-                      "caption": "Engaging post body here.",
-                      "hashtags": ["#tag1", "#tag2"],
-                      "prediction_text": "Why this works."
+                      "caption": "Post text",
+                      "hashtags": ["#tag1"],
+                      "prediction_text": "Reasoning"
                     }
                   ]
                 }
+                
+                IMPORTANT: Do not return just the list. Start with the open brace { and "posts": [.
                 """
-
+        
         let response = try await session.respond(to: prompt)
         
         // 1. Extract clean JSON string
@@ -98,7 +96,7 @@ actor OnDevicePostEngine {
             throw error
         }
     }
-
+    
     /// Robust extractor that removes Markdown and finds the outermost braces
     private func extractAndCleanJSON(from text: String) -> String? {
         // 1. Remove Markdown code block markers if present
@@ -116,5 +114,59 @@ actor OnDevicePostEngine {
         
         let jsonSubstring = cleaned[firstIndex...lastIndex]
         return String(jsonSubstring)
+    }
+}
+
+extension OnDevicePostEngine {
+
+    func refinePostForEditor(post: PublishReadyPost, context: UserProfile) async throws -> EditorDraftData {
+        let session = try await ensureSession()
+        
+        // Determine platform name for context
+        let platformName = post.platformIcon.contains("linkedin") ? "LinkedIn" : (post.platformIcon.contains("instagram") ? "Instagram" : "X (Twitter)")
+        
+        let prompt = """
+        ACT AS: Expert Social Media Copywriter.
+        
+        CONTEXT:
+        - Platform: \(platformName)
+        - Audience: \(context.targetAudience.joined(separator: ", "))
+        - Goal: \(context.primaryGoals.joined(separator: ", "))
+        
+        INPUT IDEA:
+        - Hook: "\(post.postHeading)"
+        - Draft: "\(post.caption)"
+        
+        TASK:
+        Expand this idea into a final publish-ready draft.
+        
+        REQUIREMENTS:
+        1. Caption: Professional, engaging, formatted with line breaks.
+        2. Hashtags: 5-10 relevant tags.
+        3. Posting Times: Suggest 2 specific times (e.g. "Tomorrow at 9:00 AM").
+        4. Images: Suggest 1-3 visual ideas.
+        
+        OUTPUT JSON (Strictly match this schema):
+        {
+            "platformName": "\(platformName)",
+            "platformIconName": "\(post.platformIcon)",
+            "caption": "Full caption...",
+            "images": ["visual description 1"],
+            "hashtags": ["#tag1", "#tag2"],
+            "postingTimes": ["Tomorrow at 8:00 AM", "Wednesday at 5:00 PM"]
+        }
+        """
+
+        let response = try await session.respond(to: prompt)
+        
+        // Use your existing cleaner
+        guard let jsonString = extractAndCleanJSON(from: response.content),
+              let data = jsonString.data(using: .utf8) else {
+            throw NSError(domain: "EditorEngine", code: 0, userInfo: [NSLocalizedDescriptionKey: "Failed to extract JSON"])
+        }
+        
+        // Decode directly into your struct
+        let draft = try JSONDecoder().decode(EditorDraftData.self, from: data)
+        return draft
     }
 }
