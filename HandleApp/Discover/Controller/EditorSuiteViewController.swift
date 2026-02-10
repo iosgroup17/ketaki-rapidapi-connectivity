@@ -148,36 +148,37 @@ class EditorSuiteViewController: UIViewController {
     }
     
     func handleShareFlow() {
-        // 1. Handle Caption (Clipboard is the ONLY way for Instagram)
-        if let text = captionTextView.text, !text.isEmpty {
+            guard let text = captionTextView.text else { return }
+            
+            // 1. Always copy to Clipboard (Insurance for Instagram)
             UIPasteboard.general.string = text
             UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+            
+            // 2. Prepare the Smart Text Source
+            let textSource = ShareTextSource(text: text)
+            
+            // 3. Get the working Image URLs (which fixed your Instagram crash)
+            let imageURLs = getFileURLs(from: displayedImages)
+            
+            // 4. Combine them
+            // Instagram will see: [nil, ImageURL, ImageURL] -> Works!
+            // X (Twitter) will see: ["Your Caption", ImageURL, ImageURL] -> Works!
+            var itemsToShare: [Any] = [textSource]
+            itemsToShare.append(contentsOf: imageURLs)
+            
+            let activityVC = UIActivityViewController(activityItems: itemsToShare, applicationActivities: nil)
+            
+            if let popover = activityVC.popoverPresentationController {
+                popover.barButtonItem = self.navigationItem.rightBarButtonItem
+            }
+            
+            activityVC.completionWithItemsHandler = { _, _, _, _ in
+                imageURLs.forEach { try? FileManager.default.removeItem(at: $0) }
+            }
+            
+            self.present(activityVC, animated: true)
         }
-        
-        // 2. Convert Images to File URLs
-        let imageURLs = getFileURLs(from: displayedImages)
-        
-        // 3. Prepare Items (We only send URLs for Instagram compatibility)
-        // Note: We are NOT adding 'text' here because it causes Instagram to fail.
-        // Other apps will still work because they can read the image URLs.
-        let itemsToShare: [Any] = imageURLs
-        
-        guard !itemsToShare.isEmpty else { return }
 
-        let activityVC = UIActivityViewController(activityItems: itemsToShare, applicationActivities: nil)
-        
-        // 4. iPad Support
-        if let popover = activityVC.popoverPresentationController {
-            popover.barButtonItem = self.navigationItem.rightBarButtonItem
-        }
-        
-        // 5. Success Handler (Optional: clean up temp files)
-        activityVC.completionWithItemsHandler = { _, _, _, _ in
-            imageURLs.forEach { try? FileManager.default.removeItem(at: $0) }
-        }
-        
-        self.present(activityVC, animated: true)
-    }
 }
 
 
@@ -362,5 +363,28 @@ extension EditorSuiteViewController: UIImagePickerControllerDelegate, UINavigati
     
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
         picker.dismiss(animated: true, completion: nil)
+    }
+}
+
+class ShareTextSource: NSObject, UIActivityItemSource {
+    let text: String
+
+    init(text: String) {
+        self.text = text
+    }
+
+    func activityViewControllerPlaceholderItem(_ activityViewController: UIActivityViewController) -> Any {
+        return text
+    }
+
+    func activityViewController(_ activityViewController: UIActivityViewController, itemForActivityType activityType: UIActivity.ActivityType?) -> Any? {
+        // If the user picks Instagram, we return nil (empty) for the text
+        // because we already put it in the Clipboard. This prevents the crash.
+        if activityType?.rawValue.contains("instagram") == true {
+            return nil
+        }
+        
+        // For X (Twitter), LinkedIn, Messages, etc., return the actual text.
+        return text
     }
 }
