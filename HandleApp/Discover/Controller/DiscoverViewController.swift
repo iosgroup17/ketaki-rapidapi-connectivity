@@ -16,7 +16,6 @@ class DiscoverViewController: UIViewController {
     var trendingTopics: [TrendingTopic] = []
     var publishReadyPosts: [PublishReadyPost] = []
     
-    var selectedPostDetails: [PostDetail] = []
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -383,24 +382,18 @@ extension DiscoverViewController: UICollectionViewDataSource, UICollectionViewDe
         func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
          
             if indexPath.section == 1 {
+                let selectedTopic = trendingTopics[indexPath.row]
+                print("Selected Topic: \(selectedTopic.topicName)")
+                
+                let storyboard = UIStoryboard(name: "Discover", bundle: nil)
+                if let destVC = storyboard.instantiateViewController(withIdentifier: "TopicIdeasVC") as? TopicIdeaViewController {
                     
-                    let selectedTopic = trendingTopics[indexPath.row]
+                    destVC.topic = selectedTopic
+                    destVC.pageTitle = selectedTopic.topicName
                     
-                    print("Selected Topic: \(selectedTopic.topicName)")
-
- 
-                    let storyboard = UIStoryboard(name: "Discover", bundle: nil)
-                    if let destVC = storyboard.instantiateViewController(withIdentifier: "TopicIdeasVC") as? TopicIdeaViewController {
-
-                        destVC.topic = selectedTopic
-                        
-                        destVC.allPostDetails = selectedPostDetails
-                        destVC.pageTitle = selectedTopic.topicName
-                        
-                        navigationController?.pushViewController(destVC, animated: true)
-                    }
-                    return
+                    navigationController?.pushViewController(destVC, animated: true)
                 }
+            }
             
             
             if indexPath.section == 2 {

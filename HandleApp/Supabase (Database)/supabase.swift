@@ -169,24 +169,58 @@ extension SupabaseManager {
         }
     }
     
-    func fetchLogPosts() async -> [Post] {
+    func fetchUserPosts() async -> [Post] {
         do {
+            // Ensure you have a valid user session
+            guard let currentUser = try? await client.auth.session.user else {
+                print("Error: No user logged in")
+                return []
+            }
+
             let posts: [Post] = try await client
-                .from("social_media_posts")
+                .from("posts")
                 .select()
+                .eq("user_id", value: currentUser.id)
+                .order("created_at", ascending: false)
                 .execute()
                 .value
-                
-            print("Successfully fetched \(posts.count) global posts")
+            
             return posts
         } catch {
-            print("Error fetching global posts: \(error)")
+            print("Error fetching user posts: \(error)")
             return []
         }
     }
+    
+    // 2. Create (Save/Schedule) a new post
+    func createPost(_ post: Post) async throws {
+        // Post struct already has userId, so we just insert
+        try await client
+            .from("posts")
+            .insert(post)
+            .execute()
+    }
+    
+    // 3. Update an existing post (e.g. Saved -> Scheduled)
+    func updatePostStatus(postId: UUID, status: Post.PostStatus, date: Date? = nil) async throws {
+        var updateData: [String: AnyJSON] = ["status": .string(status.rawValue)]
+        
+        if let date = date {
+            // Convert Date to ISO8601 String for JSON
+            let formatter = ISO8601DateFormatter()
+            formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+            updateData["scheduled_at"] = .string(formatter.string(from: date))
+        }
+
+        try await client
+            .from("posts")
+            .update(updateData)
+            .eq("id", value: postId.uuidString)
+            .execute()
+    }
 
     // Delete a post from Supabase
-    func deleteLogPost(id: String) async {
+    func deleteLogPost(id: UUID) async {
         do {
             try await client
                 .from("posts")
@@ -203,7 +237,7 @@ extension SupabaseManager {
     //load the multiple type of post idea and formats
     func loadPostsIdeas() async throws -> DiscoverIdeaResponse {
         
-        print("Fetching data from Supabase...")
+        print("Fetching discovery data from Supabase...")
         
         // 1. Fetch Trending Topics (The Parent Table)
         async let trendingQuery: [TrendingTopic] = client
@@ -213,57 +247,46 @@ extension SupabaseManager {
             .value
 
         // 2. Fetch ALL Actions (Linked via topic_id)
+        // Ensure your TopicAction struct CodingKeys map "topic_id" correctly if that's your DB column name
         async let actionsQuery: [TopicAction] = client
             .from("topic_actions")
             .select()
             .execute()
             .value
 
-        // 3. Fetch ALL Publish Ready Posts (Linked via topic_id)
-        async let postsQuery: [PublishReadyPost] = client
-            .from("publish_ready_posts")
-            .select()
-            .execute()
-            .value
-        
-        // 4. Fetch Post Details (Linked via id -> publish_ready_posts.id)
-        async let postDetailsQuery: [PostDetail] = client
-            .from("post_details")
-            .select()
-            .execute()
-            .value
-
-        // 5. Await all results concurrently
-        let (trending, allActions, allPosts, allPostDetails) = try await (
+        // 3. Await results (Removed postsQuery because we generate posts on-device now)
+        let (trending, allActions) = try await (
             trendingQuery,
-            actionsQuery,
-            postsQuery,
-            postDetailsQuery
+            actionsQuery
         )
         
         // MARK: - Process & Group Data
 
+        // Group actions by the Topic ID they belong to
+        // Note: Ensure 'topicDetailId' matches the variable name in your TopicAction struct
         let groupedActions = Dictionary(grouping: allActions, by: { $0.topicDetailId })
         
-
-        let groupedPosts = Dictionary(grouping: allPosts, by: { $0.id ?? "independent" })
-        
-
+        // Map Actions into Topics
         let populatedTopics = trending.map { topic -> TrendingTopic in
             var newTopic = topic
-            // Inject the children found in the dictionaries
+            
+            // Inject the actions (e.g., "Read Article", "Watch Video")
             newTopic.actions = groupedActions[topic.id] ?? []
-            newTopic.relevantPosts = groupedPosts[topic.id] ?? []
+            
+            // Initialize posts as empty.
+            // These will be populated by 'OnDevicePostEngine' in the ViewController.
+            newTopic.relevantPosts = []
+            
             return newTopic
         }
         
         print("Data fetched and grouped successfully!")
         
-        // D. Return the response
+        // 4. Return the response
+        // publishReadyPosts is empty here because the database no longer stores them.
         return DiscoverIdeaResponse(
             trendingTopics: populatedTopics,
-            publishReadyPosts: allPosts,
-            selectedPostDetails: allPostDetails
+            publishReadyPosts: []
         )
     }
 }

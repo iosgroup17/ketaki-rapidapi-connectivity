@@ -12,7 +12,7 @@ class TopicIdeaViewController: UIViewController {
     @IBOutlet weak var collectionView: UICollectionView!
     
     var topic: TrendingTopic?
-    var allPostDetails: [PostDetail] = []
+
     
     var pageTitle: String = "Topic Ideas"
     
@@ -54,6 +54,21 @@ class TopicIdeaViewController: UIViewController {
         
         collectionView.collectionViewLayout = generateLayout()
         
+    }
+    
+    func showLoading() {
+            let alert = UIAlertController(title: nil, message: "Refining Draft...", preferredStyle: .alert)
+            let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
+            loadingIndicator.hidesWhenStopped = true
+            loadingIndicator.style = .medium
+            loadingIndicator.startAnimating()
+            alert.view.addSubview(loadingIndicator)
+            present(alert, animated: true, completion: nil)
+        }
+    
+
+    func hideLoading() {
+        dismiss(animated: true, completion: nil)
     }
     
     func generateLayout() -> UICollectionViewLayout {
@@ -286,34 +301,42 @@ extension TopicIdeaViewController: UICollectionViewDataSource, UICollectionViewD
                 UIApplication.shared.open(url)
             }
         }
-        
         if indexPath.section == 2 {
-            
             guard let posts = topic?.relevantPosts, indexPath.row < posts.count else { return }
-            
             let previewPost = posts[indexPath.row]
-            print("Selected ID: \(previewPost.id)")
             
+            // 1. Show Spinner
+            self.showLoading()
             
-            let fullDetail = allPostDetails.first(where: { $0.id == previewPost.id })
-            
-            
-            let draft = EditorDraftData(
-                platformName: fullDetail?.platformName ?? "LinkedIn",
-                platformIconName: fullDetail?.platformIconId ?? previewPost.platformIcon,
-                caption: fullDetail?.fullCaption ?? previewPost.caption,
-                images: fullDetail?.images ?? previewPost.postImage,
-                hashtags: fullDetail?.suggestedHashtags ?? previewPost.hashtags,
-                postingTimes: fullDetail?.optimalPostingTimes ?? []
-            )
-            
-            
-            let storyboard = UIStoryboard(name: "Discover", bundle: nil)
-            if let editorVC = storyboard.instantiateViewController(withIdentifier: "EditorSuiteViewController") as? EditorSuiteViewController {
-                
-                editorVC.draft = draft
-                
-                self.navigationController?.pushViewController(editorVC, animated: true)
+            Task {
+                do {
+                    // 2. Get Context
+                    guard let profile = await SupabaseManager.shared.fetchUserProfile() else {
+                        await MainActor.run { self.hideLoading() }
+                        return
+                    }
+                    
+                    // 3. Generate Full Draft (On Device)
+                    let finalDraft = try await OnDevicePostEngine.shared.refinePostForEditor(
+                        post: previewPost,
+                        context: profile
+                    )
+                    
+                    // 4. Navigate
+                    await MainActor.run {
+                        self.hideLoading()
+                        let storyboard = UIStoryboard(name: "Discover", bundle: nil)
+                        if let editorVC = storyboard.instantiateViewController(withIdentifier: "EditorSuiteViewController") as? EditorSuiteViewController {
+                            editorVC.draft = finalDraft
+                            self.navigationController?.pushViewController(editorVC, animated: true)
+                        }
+                    }
+                } catch {
+                    await MainActor.run {
+                        self.hideLoading()
+                        print("Error generating draft: \(error)")
+                    }
+                }
             }
         }
     }

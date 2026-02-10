@@ -21,7 +21,12 @@ class SavedPostsTableViewCell: UITableViewCell {
     func configure(with post: Post) {
         self.platformLabel.text = post.platformName
         self.postLabel.text = post.postText
-        self.thumbNailImage.image = UIImage(named: post.imageName)
+        // Safely unwrap the array and get the first image
+        if let images = post.imageNames, let firstImage = images.first {
+            self.thumbNailImage.image = UIImage(named: firstImage)
+        } else {
+            self.thumbNailImage.image = nil // Or a placeholder image
+        }
     }
 
 }

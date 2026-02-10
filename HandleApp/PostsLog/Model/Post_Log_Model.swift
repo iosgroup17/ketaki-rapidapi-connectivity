@@ -1,90 +1,87 @@
-//
-//  Post_Log_Model.swift
-//  OnboardingScreens
-//
-//  Created by SDC_USER on 25/11/25.
-//
-
-// ScheduledPostModel.swift
-
-
 import Foundation
 import UIKit
 import Supabase
 
-struct Post: Codable {
-    let id: String?
-    let status: String?
-    let postText: String
-    let fullCaption: String?
-    let imageName: String
-    let platformName: String
-    let platformIconName: String
-    let scheduledAt: Date?
-    let publishedAt: Date?
-    let suggestedHashtags: [String]?
-    let optimalPostingTimes: [String]?
-    let likes: Int?
-    let comments: Int?
-    let reposts: Int?
-    let shares: Int?
-    let views: Int?
-    let engagementScore: Double?
+struct Post: Codable, Identifiable {
+    let id: UUID?
+    let userId: UUID        // Links to profiles.id
+    let topicId: UUID?      // Link to the trend (optional)
+    
+    // STRICT ENUM (Matches DB)
+    var status: PostStatus
+    
+    // Content
+    var postText: String
+    var fullCaption: String?
+    var imageNames: [String]? // Changed from String to [String] for multiple images
+    var platformName: String
+    var platformIconName: String?
+    
+    // Scheduling
+    var scheduledAt: Date?
+    var publishedAt: Date?
+    
+    // Analytics & Meta
+    var likes: Int?
+    var engagementScore: Double?
+    var suggestedHashtags: [String]?
+    var optimalPostingTimes: [String]?
+
+    enum PostStatus: String, Codable {
+        case saved = "SAVED"
+        case scheduled = "SCHEDULED"
+        case published = "PUBLISHED"
+    }
 
     enum CodingKeys: String, CodingKey {
-        case id, status, likes, comments, reposts, shares, views
+        case id, status, likes
+        case userId = "user_id"
+        case topicId = "topic_id"
         case postText = "post_text"
         case fullCaption = "full_caption"
-        case imageName = "image_name"
+        case imageNames = "image_names"
         case platformName = "platform_name"
         case platformIconName = "platform_icon_name"
         case scheduledAt = "scheduled_at"
         case publishedAt = "published_at"
+        case engagementScore = "engagement_score"
         case suggestedHashtags = "suggested_hashtags"
         case optimalPostingTimes = "optimal_posting_times"
-        case engagementScore = "engagement_score"
     }
 }
 
+// MARK: - Helper Filters
 extension Post {
     
     static func loadTomorrowScheduledPosts(from allPosts: [Post]) -> [Post] {
         let today = Date()
         guard let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: today) else { return [] }
+        
         return allPosts.filter { post in
-            let status = post.status?.uppercased() ?? ""
-            guard status == "SCHEDULED" else { return false }
-            guard let scheduleDate = post.scheduledAt else { return false }
-            return Calendar.current.isDate(scheduleDate, inSameDayAs: tomorrow)
+            guard post.status == .scheduled, let date = post.scheduledAt else { return false }
+            return Calendar.current.isDate(date, inSameDayAs: tomorrow)
         }
     }
 
     static func loadScheduledPostsLater(from allPosts: [Post]) -> [Post] {
         let today = Date()
         guard let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: today),
-              let endOfTomorrow = Calendar.current.date(bySettingHour: 23, minute: 59, second: 59, of: tomorrow) else {
-            return []
-        }
+              let endOfTomorrow = Calendar.current.date(bySettingHour: 23, minute: 59, second: 59, of: tomorrow) else { return [] }
         
         return allPosts.filter { post in
-            let status = post.status?.uppercased() ?? ""
-            guard status == "SCHEDULED" else { return false }
-            guard let scheduleDate = post.scheduledAt else { return false }
-            return scheduleDate > endOfTomorrow
+            guard post.status == .scheduled, let date = post.scheduledAt else { return false }
+            return date > endOfTomorrow
         }
         .sorted { ($0.scheduledAt ?? Date()) < ($1.scheduledAt ?? Date()) }
     }
     
     static func loadPublishedPosts(from allPosts: [Post]) -> [Post] {
-        return allPosts.filter { post in
-            // Check the 'status' column or if 'publishedAt' has a value
-            return post.status == "PUBLISHED" || post.publishedAt != nil
-        }
-        .sorted { $0.publishedAt ?? Date() > $1.publishedAt ?? Date()
-        }
+        return allPosts.filter { $0.status == .published }
+            .sorted { ($0.publishedAt ?? Date()) > ($1.publishedAt ?? Date()) }
     }
 
     static func loadSavedPosts(from allPosts: [Post]) -> [Post] {
-            return allPosts.filter { $0.status?.uppercased() == "SAVED" }
+        return allPosts.filter { $0.status == .saved }
+            .sorted { ($0.scheduledAt ?? Date()) > ($1.scheduledAt ?? Date()) } // Newest first
     }
 }

@@ -16,7 +16,7 @@ class PublishedPostViewController: UIViewController, UITableViewDelegate, UITabl
     var publishedPosts: [Post] = []
     var displayedPosts: [Post] = []
     var currentTimeFilter: String = "All"
-    var expandedPostId: String? = nil
+    var expandedPostId: UUID? = nil
     var expandedPost: String? = nil
     
     override func viewDidLoad() {
@@ -32,16 +32,19 @@ class PublishedPostViewController: UIViewController, UITableViewDelegate, UITabl
         publishedTableView.reloadData()
     }
     func fetchData() {
-            Task {
-                let allPosts = await SupabaseManager.shared.fetchLogPosts()
-                // Filter by status 'published' as defined in your schema
-                self.publishedPosts = Post.loadPublishedPosts(from: allPosts)
-                
-                await MainActor.run {
-                    self.applyFilters()
-                }
+        Task {
+            // 1. Fetch Master List
+            let allPosts = await SupabaseManager.shared.fetchUserPosts()
+            
+            // 2. Use Extension to Filter
+            self.publishedPosts = Post.loadPublishedPosts(from: allPosts)
+            
+            await MainActor.run {
+                self.applyFilters() // This will update 'displayedPosts'
+                self.publishedTableView.reloadData()
             }
         }
+    }
     //Platform wise filter
     @IBAction func buttonTapped(_ sender: UIButton) {
         let tag = sender.tag

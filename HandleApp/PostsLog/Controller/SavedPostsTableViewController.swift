@@ -22,13 +22,17 @@ class SavedPostsTableViewController: UITableViewController, UIPopoverPresentatio
     }
     func fetchSavedPosts() {
         Task {
-            let allPosts = await SupabaseManager.shared.fetchLogPosts()
+            // 1. Fetch Master List
+            let allPosts = await SupabaseManager.shared.fetchUserPosts()
+            
+            // 2. Use Extension to Filter
             self.savedPosts = Post.loadSavedPosts(from: allPosts)
             
-            print("Corrected 'Saved' count: \(self.savedPosts.count)")
+            print("Saved Drafts count: \(self.savedPosts.count)")
 
             await MainActor.run {
                 self.filterSavedPosts(by: self.currentPlatformFilter)
+                self.tableView.reloadData()
             }
         }
     }
@@ -157,12 +161,12 @@ class SavedPostsTableViewController: UITableViewController, UIPopoverPresentatio
                     let selectedPost = displayedPosts[indexPath.row]
                     
                     let draftData = EditorDraftData(
-                        platformName: selectedPost.platformName,
-                        platformIconName: selectedPost.platformIconName,
-                        caption: selectedPost.fullCaption ?? "",
-                        images: [selectedPost.imageName],
-                        hashtags: selectedPost.suggestedHashtags ?? [],
-                        postingTimes: selectedPost.optimalPostingTimes ?? []
+                                    platformName: selectedPost.platformName,
+                                    platformIconName: selectedPost.platformIconName,
+                                    caption: selectedPost.fullCaption ?? selectedPost.postText,
+                                    images: selectedPost.imageNames, // Now passing array directly
+                                    hashtags: selectedPost.suggestedHashtags ?? [],
+                                    postingTimes: selectedPost.optimalPostingTimes ?? []
                     )
                     
                     editorVC.draft = draftData

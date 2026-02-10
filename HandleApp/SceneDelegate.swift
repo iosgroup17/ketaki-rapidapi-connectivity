@@ -22,7 +22,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         let hasCompletedOnboarding = UserDefaults.standard.bool(forKey: "hasCompletedOnboarding")
         
-        if alwaysShowOnboarding || !hasCompletedOnboarding {
+        if alwaysShowOnboarding{
             showOnboarding(window: window)
         } else {
             showMainApp(window: window)

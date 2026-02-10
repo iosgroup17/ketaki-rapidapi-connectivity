@@ -78,26 +78,26 @@ class PostsViewController: UIViewController {
     }
     override func viewWillAppear(_ animated: Bool) {
             super.viewWillAppear(animated)
-            refreshData() // Refresh every time the view appears
+            fetchData() // Refresh every time the view appears
     }
     //Fetch posts from supabase.
-    func refreshData() {
-            Task {
-                let fetchedPosts = await SupabaseManager.shared.fetchLogPosts()
-                self.allPosts = fetchedPosts
-                
-                // Filter for posts scheduled for today.
-                self.todayScheduledPosts = fetchedPosts.filter { post in
-                    guard let scheduleDate = post.scheduledAt else { return false }
-                    return Calendar.current.isDate(scheduleDate, inSameDayAs: Date())
-                }
-                
-                // UI Updates must be on Main Thread
-                await MainActor.run {
-                    self.postsTableView.reloadData()
-                    self.updateTableViewHeight()
-                    self.setupCustomCalendar(for: self.currentWeekStartDate)
-                }
+    func fetchData() {
+        Task {
+            // 1. Fetch EVERYTHING
+            let fetchedPosts = await SupabaseManager.shared.fetchUserPosts()
+            self.allPosts = fetchedPosts
+            
+            // 2. Filter locally for "Today's Schedule"
+            let today = Date()
+            self.todayScheduledPosts = fetchedPosts.filter { post in
+                guard post.status == .scheduled, let date = post.scheduledAt else { return false }
+                return Calendar.current.isDate(date, inSameDayAs: today)
+            }
+            
+            await MainActor.run {
+                self.postsTableView.reloadData()
+                // Update your calendar dots/counts here using 'allPosts'
+            }
         }
     }
     
@@ -377,13 +377,13 @@ extension PostsViewController: UITableViewDataSource, UITableViewDelegate {
                  let selectedPost: Post
                  selectedPost = todayScheduledPosts[indexPath.row]
                 let draftData = EditorDraftData(
-                    platformName: selectedPost.platformName,
-                    platformIconName: selectedPost.platformIconName,
-                    caption: selectedPost.fullCaption ?? "",
-                    images: [selectedPost.imageName],
-                    hashtags: selectedPost.suggestedHashtags ?? [],
-                    postingTimes: selectedPost.optimalPostingTimes ?? []
-                )
+                                platformName: selectedPost.platformName,
+                                platformIconName: selectedPost.platformIconName,
+                                caption: selectedPost.fullCaption ?? selectedPost.postText,
+                                images: selectedPost.imageNames, // Now passing array directly
+                                hashtags: selectedPost.suggestedHashtags ?? [],
+                                postingTimes: selectedPost.optimalPostingTimes ?? []
+                            )
                  
                  editorVC.draft = draftData
             }

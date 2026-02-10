@@ -13,29 +13,44 @@ class ScheduledPostsTableViewCell: UITableViewCell {
     @IBOutlet weak var platformIconImageView: UIImageView!
     @IBOutlet weak var postsLabel: UILabel!
     @IBOutlet weak var thumbnailImageView: UIImageView!
+    
     override func awakeFromNib() {
         super.awakeFromNib()
         thumbnailImageView.layer.cornerRadius = 8
         thumbnailImageView.clipsToBounds = true
         self.selectionStyle = .none
     }
-    //Date and time formatter
+    
+    // Date and time formatter
     private static let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateStyle = .medium
         formatter.timeStyle = .short
         return formatter
     }()
+    
     func configure(with post: Post) {
         postsLabel.text = post.postText
         
-        platformIconImageView.image = UIImage(named: post.platformIconName)
-        thumbnailImageView.image = UIImage(named: post.imageName)
+        // 1. Handle Optional Platform Icon
+        if let iconName = post.platformIconName {
+            platformIconImageView.image = UIImage(named: iconName)
+        } else {
+            platformIconImageView.image = nil
+        }
         
-        // Using the 'scheduled_at' timestamp directly from the database
+        // 2. Handle Image Array (Fix: 'imageName' -> 'imageNames')
+        if let images = post.imageNames, let firstImage = images.first {
+            thumbnailImageView.image = UIImage(named: firstImage)
+        } else {
+            thumbnailImageView.image = nil
+        }
+        
+        // 3. Handle Schedule Date
         if let scheduledDate = post.scheduledAt {
-            // Using Date and time Formatter
             dateTimeLabel.text = ScheduledPostsTableViewCell.dateFormatter.string(from: scheduledDate)
+        } else {
+            dateTimeLabel.text = "No Date"
         }
     }
 }

@@ -33,21 +33,23 @@ class ScheduledPostsTableViewController: UITableViewController, UIPopoverPresent
     //Data refresh from supabase.
     func refreshData() {
         Task {
-            let allPosts = await SupabaseManager.shared.fetchLogPosts()
+            // 1. Fetch Master List
+            let allPosts = await SupabaseManager.shared.fetchUserPosts()
             self.allFetchedPosts = allPosts
+            
+            // 2. Filter Today
             let today = Date()
-            self.scheduledTodayPosts = allPosts.filter {
-                guard let date = $0.scheduledAt else { return false }
+            self.scheduledTodayPosts = allPosts.filter { post in
+                guard post.status == .scheduled, let date = post.scheduledAt else { return false }
                 return Calendar.current.isDate(date, inSameDayAs: today)
             }
+            
+            // 3. Filter Tomorrow & Later using Extensions
             self.scheduledTomorrowPosts = Post.loadTomorrowScheduledPosts(from: allPosts)
             self.scheduledLaterPosts = Post.loadScheduledPostsLater(from: allPosts)
-            if currentPlatformFilter != "All" {
-                filterScheduledPosts(by: currentPlatformFilter)
-            }
 
             await MainActor.run {
-                self.tableView.reloadData()
+                self.postTableView.reloadData()
             }
         }
     }
@@ -198,14 +200,14 @@ class ScheduledPostsTableViewController: UITableViewController, UIPopoverPresent
                  if indexPath.section == 0 { selectedPost = scheduledTodayPosts[indexPath.row] }
                  else if indexPath.section == 1 { selectedPost = scheduledTomorrowPosts[indexPath.row] }
                  else { selectedPost = scheduledLaterPosts[indexPath.row] }
-                 let draftData = EditorDraftData(
-                     platformName: selectedPost.platformName,
-                     platformIconName: selectedPost.platformIconName,
-                     caption: selectedPost.fullCaption ?? "",
-                     images: [selectedPost.imageName],
-                     hashtags: selectedPost.suggestedHashtags ?? [],
-                     postingTimes: selectedPost.optimalPostingTimes ?? []
-                 )
+                let draftData = EditorDraftData(
+                                platformName: selectedPost.platformName,
+                                platformIconName: selectedPost.platformIconName,
+                                caption: selectedPost.fullCaption ?? selectedPost.postText,
+                                images: selectedPost.imageNames,
+                                hashtags: selectedPost.suggestedHashtags ?? [],
+                                postingTimes: selectedPost.optimalPostingTimes ?? []
+                            )
                  editorVC.draft = draftData
             }
         }
