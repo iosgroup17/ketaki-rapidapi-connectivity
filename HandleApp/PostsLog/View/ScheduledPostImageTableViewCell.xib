@@ -54,17 +54,17 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <stackView opaque="NO" contentMode="scaleToFill" distribution="fillProportionally" spacing="60" translatesAutoresizingMaskIntoConstraints="NO" id="fcN-fj-VRn">
-                                <rect key="frame" x="108" y="122" width="234" height="20"/>
+                                <rect key="frame" x="107.99999999999999" y="122" width="186.66666666666663" height="20"/>
                                 <subviews>
                                     <stackView opaque="NO" contentMode="scaleToFill" distribution="fillProportionally" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="rl6-L5-Y7f">
-                                        <rect key="frame" x="0.0" y="0.0" width="79.666666666666671" height="20"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="63.666666666666664" height="20"/>
                                         <subviews>
                                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="calendar.badge.checkmark" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="lTh-Il-sga">
-                                                <rect key="frame" x="0.0" y="1.6666666666666643" width="28.666666666666668" height="19.666666666666668"/>
+                                                <rect key="frame" x="0.0" y="1.6666666666666643" width="23.333333333333336" height="19.666666666666668"/>
                                                 <color key="tintColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                             </imageView>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="8w2-ar-uCI">
-                                                <rect key="frame" x="36" y="0.0" width="43.666666666666657" height="20"/>
+                                                <rect key="frame" x="30.666666666666657" y="0.0" width="33" height="20"/>
                                                 <fontDescription key="fontDescription" style="UICTFontTextStyleFootnote"/>
                                                 <nil key="textColor"/>
                                                 <nil key="highlightedColor"/>
@@ -72,14 +72,14 @@
                                         </subviews>
                                     </stackView>
                                     <stackView opaque="NO" contentMode="scaleToFill" distribution="fillProportionally" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="4th-nd-aI9">
-                                        <rect key="frame" x="139.66666666666666" y="0.0" width="94.333333333333343" height="20"/>
+                                        <rect key="frame" x="123.66666666666666" y="0.0" width="63" height="20"/>
                                         <subviews>
                                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="clock.badge.checkmark" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="uj2-lw-t20">
-                                                <rect key="frame" x="0.0" y="0.66666666666666607" width="32.666666666666671" height="20"/>
+                                                <rect key="frame" x="0.0" y="0.66666666666666607" width="22.666666666666668" height="20"/>
                                                 <color key="tintColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                             </imageView>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="F66-7L-twW">
-                                                <rect key="frame" x="40.000000000000028" y="0.0" width="54.333333333333343" height="20"/>
+                                                <rect key="frame" x="30.000000000000028" y="0.0" width="33" height="20"/>
                                                 <fontDescription key="fontDescription" style="UICTFontTextStyleFootnote"/>
                                                 <nil key="textColor"/>
                                                 <nil key="highlightedColor"/>
@@ -109,7 +109,6 @@
                             <constraint firstAttribute="trailing" secondItem="jVs-XP-yQO" secondAttribute="trailing" constant="12" id="m3t-TC-Id7"/>
                             <constraint firstItem="fcN-fj-VRn" firstAttribute="leading" secondItem="ySN-be-T9C" secondAttribute="trailing" constant="16" id="mdj-IA-rtw"/>
                             <constraint firstItem="W1G-Ve-avo" firstAttribute="leading" secondItem="C6n-Sf-uyg" secondAttribute="trailing" constant="16" id="t2n-dg-buK"/>
-                            <constraint firstAttribute="trailing" secondItem="fcN-fj-VRn" secondAttribute="trailing" constant="12" id="uSZ-Ie-yHF"/>
                             <constraint firstItem="W1G-Ve-avo" firstAttribute="top" secondItem="FJU-NM-Mi9" secondAttribute="top" constant="14" id="wgq-fR-OXb"/>
                         </constraints>
                     </view>
@@ -125,8 +124,10 @@
             <connections>
                 <outlet property="captionLabel" destination="jVs-XP-yQO" id="ys6-Zq-rbC"/>
                 <outlet property="containerView" destination="FJU-NM-Mi9" id="jEi-ud-PeX"/>
+                <outlet property="dateLabel" destination="8w2-ar-uCI" id="6sB-MU-IFF"/>
                 <outlet property="platformIconImageView" destination="qSn-Qm-thN" id="LsW-aY-8I0"/>
                 <outlet property="thumbnailImageView" destination="ySN-be-T9C" id="r2i-l5-6Mv"/>
+                <outlet property="timeLabel" destination="F66-7L-twW" id="z5S-wH-gld"/>
                 <outlet property="titleLabel" destination="C6n-Sf-uyg" id="Y8L-vc-nKO"/>
             </connections>
             <point key="canvasLocation" x="135.87786259541986" y="119.71830985915494"/>

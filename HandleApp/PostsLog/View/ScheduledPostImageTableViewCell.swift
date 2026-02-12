@@ -9,6 +9,7 @@ import UIKit
 
 class ScheduledPostImageTableViewCell: UITableViewCell {
 
+    @IBOutlet weak var timeLabel: UILabel!
     @IBOutlet weak var containerView: UIView!
     @IBOutlet weak var dateLabel: UILabel!
     @IBOutlet weak var titleLabel: UILabel!
@@ -28,8 +29,13 @@ class ScheduledPostImageTableViewCell: UITableViewCell {
     
     private static let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
-        formatter.dateStyle = .medium
-        formatter.timeStyle = .short
+        formatter.dateFormat = "MMM d"
+        return formatter
+    }()
+    
+    private static let timeFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "h:mm a" // e.g., 6:49 AM
         return formatter
     }()
     
@@ -53,8 +59,10 @@ class ScheduledPostImageTableViewCell: UITableViewCell {
         // 3. Handle Schedule Date
         if let scheduledDate = post.scheduledAt {
             dateLabel.text = ScheduledPostImageTableViewCell.dateFormatter.string(from: scheduledDate)
+            timeLabel.text = ScheduledPostImageTableViewCell.timeFormatter.string(from: scheduledDate)
         } else {
             dateLabel.text = "No Date"
+            timeLabel.text = "--:--"
         }
     }
     

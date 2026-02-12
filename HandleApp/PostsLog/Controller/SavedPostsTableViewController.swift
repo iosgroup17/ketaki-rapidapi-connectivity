@@ -17,7 +17,14 @@ class SavedPostsTableViewController: UITableViewController, UIPopoverPresentatio
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        let imageNib = UINib(nibName: "SavedPostImageTableViewCell", bundle: nil)
+            tableView.register(imageNib, forCellReuseIdentifier: "ImageSavedCell")
+           
+        let textNib = UINib(nibName: "SavedPostTextTableViewCell", bundle: nil)
+            tableView.register(textNib, forCellReuseIdentifier: "TextSavedCell")
         displayedPosts = savedPosts
+        tableView.rowHeight = UITableView.automaticDimension
+        tableView.estimatedRowHeight = 100
         fetchSavedPosts()
     }
     func fetchSavedPosts() {
@@ -95,8 +102,19 @@ class SavedPostsTableViewController: UITableViewController, UIPopoverPresentatio
             fatalError("Could not dequeue SavedPostsTableViewCell")
         }
         let post = displayedPosts[indexPath.row]
-        cell.configure(with: post)
-        return cell
+        let hasImages = post.imageNames?.isEmpty == false
+        let identifier = hasImages ? "ImageSavedCell" : "TextSavedCell"
+
+        // 3. Dequeue and configure
+        if hasImages {
+            let cell = tableView.dequeueReusableCell(withIdentifier: "ImageSavedCell", for: indexPath) as! SavedPostImageTableViewCell
+            cell.configure(with: post)
+            return cell
+        } else {
+            let cell = tableView.dequeueReusableCell(withIdentifier: "TextSavedCell", for: indexPath) as! SavedPostTextTableViewCell
+            cell.configure(with: post)
+            return cell
+        }
     }
 
     /*

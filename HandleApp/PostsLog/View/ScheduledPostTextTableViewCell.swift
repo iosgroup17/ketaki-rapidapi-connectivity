@@ -9,6 +9,7 @@ import UIKit
 
 class ScheduledPostTextTableViewCell: UITableViewCell {
 
+    @IBOutlet weak var timeLabel: UILabel!
     @IBOutlet weak var containerView: UIView!
     @IBOutlet weak var dateLabel: UILabel!
     @IBOutlet weak var captionLabel: UILabel!
@@ -25,10 +26,16 @@ class ScheduledPostTextTableViewCell: UITableViewCell {
     
     private static let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
-        formatter.dateStyle = .medium
-        formatter.timeStyle = .short
+        formatter.dateFormat = "MMM d"
         return formatter
     }()
+    
+    private static let timeFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "h:mm a" // e.g., 6:49 AM
+        return formatter
+    }()
+    
     func configure(with post: Post) {
         captionLabel.text = post.postText
         
@@ -43,8 +50,10 @@ class ScheduledPostTextTableViewCell: UITableViewCell {
         // 3. Handle Schedule Date
         if let scheduledDate = post.scheduledAt {
             dateLabel.text = ScheduledPostTextTableViewCell.dateFormatter.string(from: scheduledDate)
+            timeLabel.text = ScheduledPostTextTableViewCell.timeFormatter.string(from: scheduledDate)
         } else {
             dateLabel.text = "No Date"
+            timeLabel.text = "--:--"
         }
     }
     
