@@ -98,9 +98,7 @@ class SavedPostsTableViewController: UITableViewController, UIPopoverPresentatio
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: "saved_cell", for: indexPath) as? SavedPostsTableViewCell else {
-            fatalError("Could not dequeue SavedPostsTableViewCell")
-        }
+     
         let post = displayedPosts[indexPath.row]
         let hasImages = post.imageNames?.isEmpty == false
         let identifier = hasImages ? "ImageSavedCell" : "TextSavedCell"
@@ -179,9 +177,10 @@ class SavedPostsTableViewController: UITableViewController, UIPopoverPresentatio
                     let selectedPost = displayedPosts[indexPath.row]
                     
                     let draftData = EditorDraftData(
+                                    postHeading: selectedPost.postHeading,
                                     platformName: selectedPost.platformName,
                                     platformIconName: selectedPost.platformIconName,
-                                    caption: selectedPost.fullCaption ?? selectedPost.postText,
+                                    caption: selectedPost.fullCaption,
                                     images: selectedPost.imageNames, // Now passing array directly
                                     hashtags: selectedPost.suggestedHashtags ?? [],
                                     postingTimes: selectedPost.optimalPostingTimes ?? []

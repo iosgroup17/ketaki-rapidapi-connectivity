@@ -139,6 +139,74 @@ class EditorSuiteViewController: UIViewController {
         
     }
     
+
+    @IBAction func saveButtonTapped(_ sender: Any) {
+        
+        // 1. Show "Saving..." Alert
+                let loadingAlert = UIAlertController(title: "Saving...", message: nil, preferredStyle: .alert)
+                let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 20, width: 50, height: 50))
+                loadingIndicator.hidesWhenStopped = true
+                loadingIndicator.style = .medium
+                loadingIndicator.startAnimating()
+                loadingAlert.view.addSubview(loadingIndicator)
+                
+                present(loadingAlert, animated: true)
+                
+                // 2. Create Post Object using your specific Struct
+        let savedPost = Post(
+                    id: UUID(),
+                    userId: UUID(),
+                    topicId: nil,
+
+                    status: .saved,
+   
+                    postHeading: draft?.postHeading ?? "",
+                    fullCaption: draft?.caption,
+
+                    imageNames: draft?.images,
+                    
+                    platformName: draft?.platformName ?? "General",
+                    platformIconName: draft?.platformIconName,
+   
+                    hashtags: draft?.hashtags,
+
+                    scheduledAt: nil,
+                    publishedAt: nil,
+
+                    likes: 0,
+                    engagementScore: 0.0,
+                    suggestedHashtags: nil,
+                    optimalPostingTimes: nil
+                )
+                
+                // 3. Save to Supabase
+                Task {
+                    do {
+                        try await SupabaseManager.shared.createPost(post: savedPost)
+                        
+                        // 4. Success
+                        await MainActor.run {
+                            loadingAlert.dismiss(animated: true) {
+                                self.dismiss(animated: true) {
+                                    // Optional: Add logic here if you want to go to a specific tab
+                                    print("Post saved successfully.")
+                                }
+                            }
+                        }
+                    } catch {
+                        // 5. Error
+                        await MainActor.run {
+                            loadingAlert.dismiss(animated: true) {
+                                let errAlert = UIAlertController(title: "Error", message: error.localizedDescription, preferredStyle: .alert)
+                                errAlert.addAction(UIAlertAction(title: "OK", style: .default))
+                                self.present(errAlert, animated: true)
+                            }
+                        }
+                    }
+                }
+    }
+    
+    
     func getFileURLs(from images: [UIImage]) -> [URL] {
         var urls: [URL] = []
         for (index, image) in images.enumerated() {
@@ -296,9 +364,11 @@ extension EditorSuiteViewController: UICollectionViewDataSource, UICollectionVie
                     let platform = self.draft?.platformName ?? "Post"
                     let icon = self.draft?.platformIconName
                     let tags = self.draft?.hashtags ?? []
+                    let heading = self.draft?.postHeading ?? ""
                     
                     // 3. Create the Struct
                     let package = ScheduledPostData(
+                        postHeading: heading,
                         platformName: platform,
                         iconName: icon,
                         caption: finalCaption,

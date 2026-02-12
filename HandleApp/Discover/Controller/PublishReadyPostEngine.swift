@@ -134,8 +134,9 @@ extension OnDevicePostEngine {
     func refinePostForEditor(post: PublishReadyPost, context: UserProfile) async throws -> EditorDraftData {
         let session = try await ensureSession()
         
-
         let platformName = post.platformIcon.contains("linkedin") ? "LinkedIn" : (post.platformIcon.contains("instagram") ? "Instagram" : "X (Twitter)")
+        
+        let originalHeading = post.postHeading
         
         let prompt = """
         ACT AS: Expert Social Media Copywriter.
@@ -174,9 +175,15 @@ extension OnDevicePostEngine {
                    - Analyze when the specific Target Audience ("\(context.targetAudience.joined(separator: ", "))") is most active on \(platformName).
                    - Suggest 2 specific, optimal times (e.g., "Sunday at [Time]", "Thursday at [Time]"). 
                    - Do NOT use generic 9 AM defaults unless strictly appropriate.
+        
+                5. Post Heading (Consistency):
+                   - You MUST include the "post_heading" key.
+                   - The value MUST be exactly: "\(originalHeading)".
+                   - Do not rewrite or alter the hook.
                 
                 OUTPUT JSON (Strictly match this schema):
                 {
+                    "post_heading": "\(originalHeading)",
                     "platformName": "\(platformName)",
                     "platformIconName": "\(post.platformIcon)",
                     "caption": "The elaborated, creative caption body goes here...",
@@ -185,17 +192,18 @@ extension OnDevicePostEngine {
                     "postingTimes": ["[Day] at [Optimal Time]", "[Day] at [Optimal Time]"]
                 }
         """
-
         let response = try await session.respond(to: prompt)
-
+        
         guard let jsonString = extractAndCleanJSON(from: response.content),
               let data = jsonString.data(using: .utf8) else {
             throw NSError(domain: "EditorEngine", code: 0, userInfo: [NSLocalizedDescriptionKey: "Failed to extract JSON"])
         }
         
         print("Cleaned AI JSON:\n\(jsonString)")
-
-        let draft = try JSONDecoder().decode(EditorDraftData.self, from: data)
+        
+        // 1. Decode the AI response
+        var draft = try JSONDecoder().decode(EditorDraftData.self, from: data)
+        
         return draft
     }
 }

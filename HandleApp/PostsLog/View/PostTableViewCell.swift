@@ -28,8 +28,7 @@ class PostTableViewCell: UITableViewCell {
     }
 
     func configure(with post: Post) {
-            // 1. Set Text
-            postTextLabel.text = post.postText
+    
             
             // 2. Set Time (Unwrap Optional Date)
             if let scheduleDate = post.scheduledAt {

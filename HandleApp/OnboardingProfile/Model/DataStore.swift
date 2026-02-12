@@ -18,8 +18,8 @@ class OnboardingDataStore {
             description: nil,
             layoutType: .singleSelectChips,
             options: [
-                OnboardingOption(title: "Founder", iconName: "lightbulb.max"),
-                OnboardingOption(title: "Employee", iconName: "person.text.rectangle")
+                OnboardingOption(title: "Founder", iconName: "light-bulb"),
+                OnboardingOption(title: "Employee", iconName: "id-card")
             ]
         ),
 
@@ -45,11 +45,11 @@ class OnboardingDataStore {
             layoutType: .singleSelectCards,
             options: [
                 OnboardingOption(title: "Technology & Software", iconName: "grid_tech"),
-                OnboardingOption(title: "Marketing, Branding & Growth", iconName: "grid_marketing"),
+                OnboardingOption(title: "Marketing, Branding & Growth", iconName: "grid_media"),
                 OnboardingOption(title: "Finance, Strategy & Operations", iconName: "grid_finance"),
-                OnboardingOption(title: "Design, Product & UX", iconName: "grid_design"),
+                OnboardingOption(title: "Design, Product & UX", iconName: "favorite"),
                 OnboardingOption(title: "Education, Coaching & Knowledge", iconName: "grid_edu"),
-                OnboardingOption(title: "Media, Content & Community", iconName: "grid_creator")
+                OnboardingOption(title: "Media, Content & Community", iconName: "hospitality")
             ]
         ),
 

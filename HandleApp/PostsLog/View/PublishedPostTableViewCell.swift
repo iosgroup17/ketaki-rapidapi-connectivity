@@ -41,7 +41,7 @@ class PublishedPostTableViewCell: UITableViewCell {
     }()
     
     func configure(with post: Post, isExpanded: Bool) {
-        postLabel.text = post.postText
+  
         
         // 1. Handle Optional Icon
         if let iconName = post.platformIconName {

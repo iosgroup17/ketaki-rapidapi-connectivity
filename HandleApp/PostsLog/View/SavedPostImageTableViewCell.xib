@@ -46,7 +46,7 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="SZy-zs-S7I">
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="SZy-zs-S7I">
                                 <rect key="frame" x="12" y="54" width="80" height="80"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="80" id="9mK-UH-9Sk"/>
@@ -66,6 +66,7 @@
                             <constraint firstItem="72Y-nN-syd" firstAttribute="leading" secondItem="SZy-zs-S7I" secondAttribute="trailing" constant="16" id="XM2-kH-rf8"/>
                             <constraint firstAttribute="trailing" secondItem="72Y-nN-syd" secondAttribute="trailing" constant="12" id="gFM-gJ-hdh"/>
                             <constraint firstItem="SZy-zs-S7I" firstAttribute="leading" secondItem="7t3-Q5-Tjy" secondAttribute="leading" constant="12" id="hR6-0e-Byx"/>
+                            <constraint firstAttribute="bottom" secondItem="SZy-zs-S7I" secondAttribute="bottom" constant="12" id="pHS-17-ZKN"/>
                             <constraint firstItem="VwZ-JV-AWW" firstAttribute="top" secondItem="7t3-Q5-Tjy" secondAttribute="top" constant="12" id="pka-Qz-IUz"/>
                             <constraint firstItem="72Y-nN-syd" firstAttribute="top" secondItem="VwZ-JV-AWW" secondAttribute="bottom" constant="16" id="uYL-6i-b1s"/>
                             <constraint firstAttribute="trailing" secondItem="mdp-GV-463" secondAttribute="trailing" constant="12" id="ud1-hC-J05"/>

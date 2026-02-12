@@ -40,7 +40,10 @@ class ScheduledPostImageTableViewCell: UITableViewCell {
     }()
     
     func configure(with post: Post) {
-        captionLabel.text = post.postText
+        self.titleLabel.text = post.postHeading
+            
+            // Fix: Use 'captionLabel' instead of 'postLabel'
+        self.captionLabel.text = post.fullCaption
         
         // 1. Handle Optional Platform Icon
         if let iconName = post.platformIconName {

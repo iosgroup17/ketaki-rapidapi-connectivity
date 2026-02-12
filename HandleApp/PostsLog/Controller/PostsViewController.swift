@@ -32,6 +32,15 @@ class PostsViewController: UIViewController {
         super.viewDidLoad()
 
         navigationController? .hidesBarsOnSwipe = false
+        
+        let imageNib = UINib(nibName: "ScheduledPostImageTableViewCell", bundle: nil)
+            postsTableView.register(imageNib, forCellReuseIdentifier: "ScheduledPostImageTableViewCell")
+                    
+            let textNib = UINib(nibName: "ScheduledPostTextTableViewCell", bundle:nil)
+        postsTableView.register(textNib, forCellReuseIdentifier: "ScheduledPostTextTableViewCell")
+        
+        postsTableView.rowHeight = UITableView.automaticDimension
+            postsTableView.estimatedRowHeight = 100
             
         let calendar = Calendar.current
         currentWeekStartDate = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: Date())) ?? Date()
@@ -96,6 +105,7 @@ class PostsViewController: UIViewController {
             
             await MainActor.run {
                 self.postsTableView.reloadData()
+                self.updateTableViewHeight()
                 // Update your calendar dots/counts here using 'allPosts'
             }
         }
@@ -303,11 +313,21 @@ class PostsViewController: UIViewController {
     }
             
     func updateTableViewHeight() {
-        let cellHeight: CGFloat = 100
-        
-        let requiredHeight = CGFloat(todayScheduledPosts.count) * cellHeight
-        tableViewHeightConstraint.constant = requiredHeight
-        view.layoutIfNeeded()
+        // 1. Force the TableView to calculate its layout immediately
+            //    so that 'contentSize' is accurate.
+            postsTableView.layoutIfNeeded()
+            
+            // 2. Get the actual total height of all cells
+            //    (This value is calculated automatically by iOS based on your Auto Layout constraints)
+            let requiredHeight = postsTableView.contentSize.height
+            
+            // 3. Update the constraint
+            tableViewHeightConstraint.constant = requiredHeight
+            
+            // 4. Animate the change (optional, but looks smoother)
+            UIView.animate(withDuration: 0.3) {
+                self.view.layoutIfNeeded()
+            }
     }
 }
 extension PostsViewController: UITableViewDataSource, UITableViewDelegate {
@@ -318,14 +338,21 @@ extension PostsViewController: UITableViewDataSource, UITableViewDelegate {
     }
             
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: "PostCell", for: indexPath) as? PostTableViewCell else {
-            fatalError("Could not dequeue PostTableViewCell")
-        }
+        
             
         let post = todayScheduledPosts[indexPath.row]
-        cell.configure(with: post)
-            
-        return cell
+        let hasImages = post.imageNames?.isEmpty == false
+
+        // 3. Dequeue and configure
+        if hasImages {
+            let cell = tableView.dequeueReusableCell(withIdentifier: "ScheduledPostImageTableViewCell", for: indexPath) as! ScheduledPostImageTableViewCell
+            cell.configure(with: post)
+            return cell
+        } else {
+            let cell = tableView.dequeueReusableCell(withIdentifier: "ScheduledPostTextTableViewCell", for: indexPath) as! ScheduledPostTextTableViewCell
+            cell.configure(with: post)
+            return cell
+        }
     }
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
@@ -377,9 +404,10 @@ extension PostsViewController: UITableViewDataSource, UITableViewDelegate {
                  let selectedPost: Post
                  selectedPost = todayScheduledPosts[indexPath.row]
                 let draftData = EditorDraftData(
+                                postHeading: selectedPost.postHeading,
                                 platformName: selectedPost.platformName,
                                 platformIconName: selectedPost.platformIconName,
-                                caption: selectedPost.fullCaption ?? selectedPost.postText,
+                                caption: selectedPost.fullCaption,
                                 images: selectedPost.imageNames, // Now passing array directly
                                 hashtags: selectedPost.suggestedHashtags ?? [],
                                 postingTimes: selectedPost.optimalPostingTimes ?? []

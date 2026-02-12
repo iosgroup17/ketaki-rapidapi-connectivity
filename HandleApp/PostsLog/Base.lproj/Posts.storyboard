@@ -208,16 +208,16 @@
                                                                 <rect key="frame" x="0.0" y="0.0" width="362" height="220.33333333333334"/>
                                                                 <subviews>
                                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Scheduled For Today" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Zv4-O8-EIV">
-                                                                        <rect key="frame" x="8" y="4" width="346" height="108.33333333333333"/>
+                                                                        <rect key="frame" x="8" y="4.0000000000000036" width="346" height="58.333333333333343"/>
                                                                         <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
                                                                         <nil key="textColor"/>
                                                                         <nil key="highlightedColor"/>
                                                                     </label>
                                                                     <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" scrollEnabled="NO" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="60" estimatedRowHeight="-1" sectionHeaderHeight="40" estimatedSectionHeaderHeight="-1" sectionFooterHeight="40" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="5TA-RQ-B3t">
-                                                                        <rect key="frame" x="8" y="120.33333333333337" width="346" height="100"/>
+                                                                        <rect key="frame" x="8" y="70.333333333333371" width="346" height="150"/>
                                                                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                                                         <constraints>
-                                                                            <constraint firstAttribute="height" constant="100" id="Bzu-Gc-adV"/>
+                                                                            <constraint firstAttribute="height" constant="150" id="ZGC-eP-kf9"/>
                                                                         </constraints>
                                                                         <prototypes>
                                                                             <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="PostCell" id="dmf-e3-QM2" customClass="PostTableViewCell" customModule="HandleApp" customModuleProvider="target">
@@ -357,7 +357,7 @@
                         <outlet property="savedStackView" destination="Fb7-18-5Qa" id="UV6-bQ-xEm"/>
                         <outlet property="scheduledStackView" destination="Kk3-XK-kZa" id="RpK-C9-Hud"/>
                         <outlet property="shadowTableView" destination="QGH-Bg-fWu" id="jIJ-Vx-2E9"/>
-                        <outlet property="tableViewHeightConstraint" destination="Bzu-Gc-adV" id="JEb-JO-YNq"/>
+                        <outlet property="tableViewHeightConstraint" destination="ZGC-eP-kf9" id="Ldh-bP-P4Y"/>
                         <outlet property="weekDayStackView" destination="Nut-yJ-Tir" id="OnQ-Zj-Kqw"/>
                         <segue destination="TrU-PV-xKs" kind="show" identifier="openEditorModal" id="Msy-1b-VKj"/>
                     </connections>
@@ -1073,10 +1073,10 @@
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="systemGreenColor">
-            <color red="0.20392156859999999" green="0.78039215689999997" blue="0.34901960780000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.20392156862745098" green="0.7803921568627451" blue="0.34901960784313724" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="systemTealColor">
-            <color red="0.18823529410000001" green="0.69019607839999997" blue="0.78039215689999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.0" green="0.76470588235294112" blue="0.81568627450980391" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="systemYellowColor">
             <color red="1" green="0.80000000000000004" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>

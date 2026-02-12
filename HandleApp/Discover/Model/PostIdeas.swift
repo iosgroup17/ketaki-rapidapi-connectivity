@@ -107,10 +107,16 @@ struct TopicAction: Codable {
 
 
 struct EditorDraftData: Codable {
+    let postHeading: String?
     let platformName: String
     let platformIconName: String?
     let caption: String?
     let images: [String]?
     let hashtags: [String]?
     let postingTimes: [String]?
+    
+    enum CodingKeys: String, CodingKey {
+        case postHeading = "post_heading" 
+        case platformName, platformIconName, caption, images, hashtags, postingTimes
+    }
 }

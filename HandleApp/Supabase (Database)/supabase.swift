@@ -201,11 +201,12 @@ extension SupabaseManager {
                 userId: targetID, // Attach to whichever user is active (Real or Test)
                 topicId: post.topicId,
                 status: post.status,
-                postText: post.postText,
+                postHeading: post.postHeading,
                 fullCaption: post.fullCaption,
                 imageNames: post.imageNames,
                 platformName: post.platformName,
                 platformIconName: post.platformIconName,
+                hashtags: post.hashtags,
                 scheduledAt: post.scheduledAt,
                 publishedAt: post.publishedAt,
                 suggestedHashtags: post.suggestedHashtags

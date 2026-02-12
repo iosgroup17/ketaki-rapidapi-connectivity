@@ -11,11 +11,12 @@ struct Post: Codable, Identifiable {
     var status: PostStatus
     
     // Content
-    var postText: String
+    var postHeading: String
     var fullCaption: String?
     var imageNames: [String]? // Changed from String to [String] for multiple images
     var platformName: String
     var platformIconName: String?
+    let hashtags: [String]?
     
     // Scheduling
     var scheduledAt: Date?
@@ -34,10 +35,10 @@ struct Post: Codable, Identifiable {
     }
 
     enum CodingKeys: String, CodingKey {
-        case id, status, likes
+        case id, status, likes, hashtags
         case userId = "user_id"
         case topicId = "topic_id"
-        case postText = "post_text"
+        case postHeading = "post_heading"
         case fullCaption = "full_caption"
         case imageNames = "image_names"
         case platformName = "platform_name"

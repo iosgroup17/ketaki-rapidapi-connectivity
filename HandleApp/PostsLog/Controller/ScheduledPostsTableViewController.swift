@@ -23,10 +23,10 @@ class ScheduledPostsTableViewController: UITableViewController, UIPopoverPresent
     override func viewDidLoad() {
         super.viewDidLoad()
         let imageNib = UINib(nibName: "ScheduledPostImageTableViewCell", bundle: nil)
-            tableView.register(imageNib, forCellReuseIdentifier: "ImageCell")
+            tableView.register(imageNib, forCellReuseIdentifier: "ScheduledPostImageTableViewCell")
            
         let textNib = UINib(nibName: "ScheduledPostTextTableViewCell", bundle: nil)
-            tableView.register(textNib, forCellReuseIdentifier: "TextCell")
+            tableView.register(textNib, forCellReuseIdentifier: "ScheduledPostTextTableViewCell")
         
         tableView.backgroundColor = .clear
         tableView.rowHeight = UITableView.automaticDimension
@@ -137,11 +137,11 @@ class ScheduledPostsTableViewController: UITableViewController, UIPopoverPresent
 
         // 3. Dequeue and configure
         if hasImages {
-            let cell = tableView.dequeueReusableCell(withIdentifier: "ImageCell", for: indexPath) as! ScheduledPostImageTableViewCell
+            let cell = tableView.dequeueReusableCell(withIdentifier: "ScheduledPostImageTableViewCell", for: indexPath) as! ScheduledPostImageTableViewCell
             cell.configure(with: post)
             return cell
         } else {
-            let cell = tableView.dequeueReusableCell(withIdentifier: "TextCell", for: indexPath) as! ScheduledPostTextTableViewCell
+            let cell = tableView.dequeueReusableCell(withIdentifier: "ScheduledPostTextTableViewCell", for: indexPath) as! ScheduledPostTextTableViewCell
             cell.configure(with: post)
             return cell
         }
@@ -211,9 +211,10 @@ class ScheduledPostsTableViewController: UITableViewController, UIPopoverPresent
                  else if indexPath.section == 1 { selectedPost = scheduledTomorrowPosts[indexPath.row] }
                  else { selectedPost = scheduledLaterPosts[indexPath.row] }
                 let draftData = EditorDraftData(
+                                postHeading: selectedPost.postHeading,
                                 platformName: selectedPost.platformName,
                                 platformIconName: selectedPost.platformIconName,
-                                caption: selectedPost.fullCaption ?? selectedPost.postText,
+                                caption: selectedPost.fullCaption,
                                 images: selectedPost.imageNames,
                                 hashtags: selectedPost.suggestedHashtags ?? [],
                                 postingTimes: selectedPost.optimalPostingTimes ?? []
