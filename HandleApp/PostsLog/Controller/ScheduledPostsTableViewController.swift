@@ -22,8 +22,15 @@ class ScheduledPostsTableViewController: UITableViewController, UIPopoverPresent
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        let imageNib = UINib(nibName: "ScheduledPostImageTableViewCell", bundle: nil)
+            tableView.register(imageNib, forCellReuseIdentifier: "ImageCell")
+           
+        let textNib = UINib(nibName: "ScheduledPostTextTableViewCell", bundle: nil)
+            tableView.register(textNib, forCellReuseIdentifier: "TextCell")
         
         tableView.backgroundColor = .clear
+        tableView.rowHeight = UITableView.automaticDimension
+        tableView.estimatedRowHeight = 100
 
         allTodayPosts = scheduledTodayPosts
         allTomorrowPosts = scheduledTomorrowPosts
@@ -118,20 +125,23 @@ class ScheduledPostsTableViewController: UITableViewController, UIPopoverPresent
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: "scheduled_cell", for: indexPath) as? ScheduledPostsTableViewCell else {
-            fatalError("Could not dequeue ScheduledPostsTableViewCell")
-        }
-        
-        if indexPath.section == 0 {
-            let post = scheduledTodayPosts[indexPath.row]
-            cell.configure(with: post)
-            return cell
-        } else if indexPath.section == 1 {
-            let post = scheduledTomorrowPosts[indexPath.row]
+        // 1. Get the post for the current row
+        let post: Post
+        if indexPath.section == 0 { post = scheduledTodayPosts[indexPath.row] }
+        else if indexPath.section == 1 { post = scheduledTomorrowPosts[indexPath.row] }
+        else { post = scheduledLaterPosts[indexPath.row] }
+
+        // 2. Check if the post has images to decide which identifier to use
+        let hasImages = post.imageNames?.isEmpty == false
+        let identifier = hasImages ? "ImageCell" : "TextCell"
+
+        // 3. Dequeue and configure
+        if hasImages {
+            let cell = tableView.dequeueReusableCell(withIdentifier: "ImageCell", for: indexPath) as! ScheduledPostImageTableViewCell
             cell.configure(with: post)
             return cell
         } else {
-            let post = scheduledLaterPosts[indexPath.row]
+            let cell = tableView.dequeueReusableCell(withIdentifier: "TextCell", for: indexPath) as! ScheduledPostTextTableViewCell
             cell.configure(with: post)
             return cell
         }
