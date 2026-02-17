@@ -152,58 +152,60 @@ class EditorSuiteViewController: UIViewController {
                 
                 present(loadingAlert, animated: true)
                 
-                // 2. Create Post Object using your specific Struct
         let savedPost = Post(
-                    id: UUID(),
-                    userId: UUID(),
-                    topicId: nil,
+                id: draft?.id ?? UUID(), // Use existing ID if available (See Step 2), else new
+                userId: SupabaseManager.shared.currentUserID,
+                topicId: nil,
 
-                    status: .saved,
-   
-                    postHeading: draft?.postHeading ?? "",
-                    fullCaption: draft?.caption,
+                status: .saved,
 
-                    imageNames: draft?.images,
-                    
-                    platformName: draft?.platformName ?? "General",
-                    platformIconName: draft?.platformIconName,
-   
-                    hashtags: draft?.hashtags,
+                postHeading: draft?.postHeading ?? "",
+                fullCaption: draft?.caption,
 
-                    scheduledAt: nil,
-                    publishedAt: nil,
-
-                    likes: 0,
-                    engagementScore: 0.0,
-                    suggestedHashtags: nil,
-                    optimalPostingTimes: nil
-                )
+                imageNames: draft?.images,
                 
-                // 3. Save to Supabase
-                Task {
-                    do {
-                        try await SupabaseManager.shared.createPost(post: savedPost)
+                platformName: draft?.platformName ?? "General",
+                platformIconName: draft?.platformIconName,
+
+                hashtags: draft?.hashtags,
+
+                scheduledAt: nil,
+                publishedAt: nil,
+
+                likes: 0,
+                engagementScore: 0.0,
+                suggestedHashtags: nil,
+                optimalPostingTimes: nil
+            )
+        
+        print(SupabaseManager.shared.currentUserID)
                         
-                        // 4. Success
-                        await MainActor.run {
-                            loadingAlert.dismiss(animated: true) {
-                                self.dismiss(animated: true) {
-                                    // Optional: Add logic here if you want to go to a specific tab
-                                    print("Post saved successfully.")
+                        // 3. Save to Supabase
+                        Task {
+                            do {
+                                try await SupabaseManager.shared.upsertPost(post: savedPost)
+                                
+                                // 4. Success
+                                await MainActor.run {
+                                    loadingAlert.dismiss(animated: true) {
+                                        self.dismiss(animated: true) {
+                                            // Optional: Add logic here if you want to go to a specific tab
+                                            print("Post saved successfully.")
+                                        }
+                                    }
+                                }
+                            } catch {
+                                // 5. Error
+                                await MainActor.run {
+                                    loadingAlert.dismiss(animated: true) {
+                                        let errAlert = UIAlertController(title: "Error", message: error.localizedDescription, preferredStyle: .alert)
+                                        print(error.localizedDescription)
+                                        errAlert.addAction(UIAlertAction(title: "OK", style: .default))
+                                        self.present(errAlert, animated: true)
+                                    }
                                 }
                             }
                         }
-                    } catch {
-                        // 5. Error
-                        await MainActor.run {
-                            loadingAlert.dismiss(animated: true) {
-                                let errAlert = UIAlertController(title: "Error", message: error.localizedDescription, preferredStyle: .alert)
-                                errAlert.addAction(UIAlertAction(title: "OK", style: .default))
-                                self.present(errAlert, animated: true)
-                            }
-                        }
-                    }
-                }
     }
     
     
@@ -366,6 +368,7 @@ extension EditorSuiteViewController: UICollectionViewDataSource, UICollectionVie
                     let tags = self.draft?.hashtags ?? []
                     let heading = self.draft?.postHeading ?? ""
                     
+                    
                     // 3. Create the Struct
                     let package = ScheduledPostData(
                         postHeading: heading,
@@ -378,6 +381,9 @@ extension EditorSuiteViewController: UICollectionViewDataSource, UICollectionVie
                     
                     // 4. Pass the Struct to Scheduler
                     destinationVC.postData = package
+                    destinationVC.captionText = captionTextView.text
+                    destinationVC.postHeading = draft?.postHeading
+
                 }
             }
         }

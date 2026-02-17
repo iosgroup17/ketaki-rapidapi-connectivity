@@ -177,6 +177,7 @@ class SavedPostsTableViewController: UITableViewController, UIPopoverPresentatio
                     let selectedPost = displayedPosts[indexPath.row]
                     
                     let draftData = EditorDraftData(
+                                    id: selectedPost.id,
                                     postHeading: selectedPost.postHeading,
                                     platformName: selectedPost.platformName,
                                     platformIconName: selectedPost.platformIconName,

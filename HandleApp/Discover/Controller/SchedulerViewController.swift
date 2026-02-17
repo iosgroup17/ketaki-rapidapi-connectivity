@@ -36,6 +36,8 @@ class SchedulerViewController: UIViewController, UICollectionViewDelegate, UICol
     var imageNames: [String]?
     var postHeading: String?
     
+    var existingPostId: UUID?
+    
     var postData: ScheduledPostData?
 
     override func viewDidLoad() {
@@ -173,72 +175,72 @@ class SchedulerViewController: UIViewController, UICollectionViewDelegate, UICol
     
     @IBAction func scheduleButtonTapped(_ sender: UIBarButtonItem) {
         // 1. Combine Date/Time
-        let calendar = Calendar.current
-        let dateComponents = calendar.dateComponents([.year, .month, .day], from: datePicker.date)
-        let timeComponents = calendar.dateComponents([.hour, .minute], from: timePicker.date)
-        
-        var mergedComps = DateComponents()
-        mergedComps.year = dateComponents.year
-        mergedComps.month = dateComponents.month
-        mergedComps.day = dateComponents.day
-        mergedComps.hour = timeComponents.hour
-        mergedComps.minute = timeComponents.minute
-        
-        let finalDate = calendar.date(from: mergedComps) ?? Date()
-        
-        // 2. Show "Scheduling..." Alert
-        let loadingAlert = UIAlertController(title: "Scheduling...", message: nil, preferredStyle: .alert)
-        let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 20, width: 50, height: 50))
-        loadingIndicator.hidesWhenStopped = true
-        loadingIndicator.style = .medium
-        loadingIndicator.startAnimating()
-        loadingAlert.view.addSubview(loadingIndicator)
-        
-        present(loadingAlert, animated: true)
-        
-        // 3. Create Post Object
-        // We use 'postData' for text, but 'self.imageNames' for the DB file paths
-        let newPost = Post(
-            id: UUID(),
-            userId: UUID(), // SupabaseManager handles this
-            topicId: nil,
-            status: .scheduled,
-            postHeading: postData?.postHeading ?? "",
-            fullCaption: postData?.caption ?? "",
-            imageNames: self.imageNames, 
-            platformName: postData?.platformName ?? "General",
-            platformIconName: postData?.iconName,
-            hashtags: postData?.hashtags,
-            scheduledAt: finalDate,
-            publishedAt: nil,
-            likes: 0,
-            engagementScore: 0,
-        )
-        
-        // 4. Save to Supabase
-        Task {
-            do {
-                try await SupabaseManager.shared.createPost(post: newPost)
-                
-                // 5. Success: Dismiss Alert -> Dismiss Modal
-                await MainActor.run {
-                    loadingAlert.dismiss(animated: true) {
-                        self.dismiss(animated: true) {
-                            self.navigateToScheduledTab()
-                        }
-                    }
-                }
-            } catch {
-                // 6. Error: Dismiss Alert -> Show Error
-                await MainActor.run {
-                    loadingAlert.dismiss(animated: true) {
-                        let errAlert = UIAlertController(title: "Error", message: error.localizedDescription, preferredStyle: .alert)
-                        errAlert.addAction(UIAlertAction(title: "OK", style: .default))
-                        self.present(errAlert, animated: true)
-                    }
-                }
-            }
-        }
+               let calendar = Calendar.current
+               let dateComponents = calendar.dateComponents([.year, .month, .day], from: datePicker.date)
+               let timeComponents = calendar.dateComponents([.hour, .minute], from: timePicker.date)
+               
+               var mergedComps = DateComponents()
+               mergedComps.year = dateComponents.year
+               mergedComps.month = dateComponents.month
+               mergedComps.day = dateComponents.day
+               mergedComps.hour = timeComponents.hour
+               mergedComps.minute = timeComponents.minute
+               
+               let finalDate = calendar.date(from: mergedComps) ?? Date()
+               
+               // 2. Show "Scheduling..." Alert
+               let loadingAlert = UIAlertController(title: "Scheduling...", message: nil, preferredStyle: .alert)
+               let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 20, width: 50, height: 50))
+               loadingIndicator.hidesWhenStopped = true
+               loadingIndicator.style = .medium
+               loadingIndicator.startAnimating()
+               loadingAlert.view.addSubview(loadingIndicator)
+               
+               present(loadingAlert, animated: true)
+               
+               // 3. Create Post Object
+               // We use 'postData' for text, but 'self.imageNames' for the DB file paths
+               let newPost = Post(
+                    id: self.existingPostId ?? UUID(), // ✅ Use existing ID to update row
+                    userId: SupabaseManager.shared.currentUserID,
+                   topicId: nil,
+                   status: .scheduled,
+                   postHeading: postData?.postHeading ?? "",
+                   fullCaption: postData?.caption ?? "",
+                   imageNames: self.imageNames,
+                   platformName: postData?.platformName ?? "General",
+                   platformIconName: postData?.iconName,
+                   hashtags: postData?.hashtags,
+                   scheduledAt: finalDate,
+                   publishedAt: nil,
+                   likes: 0,
+                   engagementScore: 0,
+               )
+               
+               // 4. Save to Supabase
+               Task {
+                   do {
+                       try await SupabaseManager.shared.upsertPost(post: newPost)
+                       
+                       // 5. Success: Dismiss Alert -> Dismiss Modal
+                       await MainActor.run {
+                           loadingAlert.dismiss(animated: true) {
+                               self.dismiss(animated: true) {
+                                   self.navigateToScheduledTab()
+                               }
+                           }
+                       }
+                   } catch {
+                       // 6. Error: Dismiss Alert -> Show Error
+                       await MainActor.run {
+                           loadingAlert.dismiss(animated: true) {
+                               let errAlert = UIAlertController(title: "Error", message: error.localizedDescription, preferredStyle: .alert)
+                               errAlert.addAction(UIAlertAction(title: "OK", style: .default))
+                               self.present(errAlert, animated: true)
+                           }
+                       }
+                   }
+               }
     }
     
     func navigateToScheduledTab() {

@@ -211,6 +211,7 @@ class ScheduledPostsTableViewController: UITableViewController, UIPopoverPresent
                  else if indexPath.section == 1 { selectedPost = scheduledTomorrowPosts[indexPath.row] }
                  else { selectedPost = scheduledLaterPosts[indexPath.row] }
                 let draftData = EditorDraftData(
+                                id: selectedPost.id,
                                 postHeading: selectedPost.postHeading,
                                 platformName: selectedPost.platformName,
                                 platformIconName: selectedPost.platformIconName,

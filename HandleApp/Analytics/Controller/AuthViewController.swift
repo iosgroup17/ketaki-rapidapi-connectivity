@@ -1,202 +1,236 @@
 import UIKit
 import AuthenticationServices
+import Supabase
+import PostgREST
 
 class AuthViewController: UIViewController, ASWebAuthenticationPresentationContextProviding {
 
-    // adopting ASWebAuthenticationPresentationContextProviding protocol to provide presentation anchor for ASWebAuthenticationSession
-    
+    // MARK: - Outlets
     @IBOutlet weak var twitterButton: UIButton!
-    
     @IBOutlet weak var linkedInButton: UIButton!
     @IBOutlet weak var instagramButton: UIButton!
     @IBOutlet weak var skipForNowButton: UIButton!
     
+    // Variables
+    var webAuthSession: ASWebAuthenticationSession?
+    var connectedPlatforms: Set<String> = []
     
-    var webAuthSession: ASWebAuthenticationSession? // to hold the authentication session
-    var onCompletion: ((Bool) -> Void)? //this is a closure to notify when auth is complete it is used here to inform AnalyticsVC about successful connection as in handleSuccessfulLogin function
+    // Logic Flags
+    var isManageMode = false
+    var onCompletion: ((Bool) -> Void)?
 
+    // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         navigationController?.setNavigationBarHidden(true, animated: false)
+        
+        // 1. Silent Login & Check Status
+        Task {
+            await SupabaseManager.shared.ensureAnonymousSession()
+            self.checkConnections()
+        }
     }
-    // disable buttons if they're already connected 
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
-        Task {
-            let list = await SupabaseManager.shared.fetchConnectedPlatforms()
-            if list.contains("twitter") { markButtonAsConnected(twitterButton) }
-            if list.contains("linkedin") { markButtonAsConnected(linkedInButton) }
-            if list.contains("instagram") { markButtonAsConnected(instagramButton) }
-        }
+        checkConnections()
     }
-
-    // disable buttons if they're already connected 
-    func markButtonAsConnected(_ button: UIButton) {
-        DispatchQueue.main.async {
-            button.isUserInteractionEnabled = false // Make it unclickable
-            button.backgroundColor = .systemGray3   // Change background to grey
-            button.setTitleColor(.white, for: .normal)
-            button.setTitle("Connected ✓", for: .normal)
-            button.alpha = 1.0
+    
+    // MARK: - Connection Check Logic
+    func checkConnections() {
+        Task {
+            // 1. Fetch connected platforms
+            let list = await SupabaseManager.shared.fetchConnectedPlatforms()
+            self.connectedPlatforms = Set(list)
+            
+            DispatchQueue.main.async {
+                // 2. Update UI for all buttons
+                self.updateButtonVisuals(platform: "instagram", button: self.instagramButton)
+                self.updateButtonVisuals(platform: "twitter", button: self.twitterButton)
+                self.updateButtonVisuals(platform: "linkedin", button: self.linkedInButton)
+                
+                // 3. Auto-Navigation Logic
+                // Only auto-finish if we are NOT in "Manage Mode"
+                if !self.isManageMode && list.count >= 3 {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+                        self.finishAuthFlow(success: true)
+                    }
+                }
+            }
         }
     }
     
-    // MARK: - Twitter Action
-    @IBAction func didTapTwitter(_ sender: UIButton) {
-        print("Starting Twitter Auth...")
+    func finishAuthFlow(success: Bool) {
+        // Notify parent
+        onCompletion?(success)
         
-        // create a URL that includes your "Client ID" and a "Code Challenge" 
-        // guard let here unwraps safely, if nil then it returns immediately
-        guard let authURL = SocialAuthManager.shared.getTwitterAuthURL(),
-              let url = URL(string: authURL) else { return } 
-              // this converts the string URL to URL object
-
-
-        
-        self.webAuthSession = ASWebAuthenticationSession(
-            url: url,
-            callbackURLScheme: "handleapp") { [weak self] callbackURL, error in
-                
-                guard let self = self else { return }
-                if let error = error { print("Auth Failed: \(error.localizedDescription)"); return }
-                
-                // extracting code from the redirect URL is done by getQueryStringParameter function
-                if let callbackURL = callbackURL,
-                   let code = self.getQueryStringParameter(url: callbackURL.absoluteString, param: "code") {
-                    
-                    print("Got Twitter Code: \(code)")
-                    
-                    // exchange the code for a permanent access token (PAT)
-                    SocialAuthManager.shared.exchangeTwitterCodeForToken(code: code) { result in
-                        DispatchQueue.main.async {
-                            // dispatch to main thread to update UI to update db and change color
-                            switch result {
-                            case .success(let token):
-                                Task {
-                                    await SupabaseManager.shared.saveSocialToken(platform: "twitter", token: token)
-                                    self.markButtonAsConnected(self.twitterButton)
-                                    
-                                    self.handleSuccessfulLogin()
-                                }
-                                
-                            case .failure(let error):
-                                print("Token Exchange Failed: \(error.localizedDescription)")
-                            }
-                        }
-                    }
-                }
+        // Navigation Logic
+        if let presentingVC = self.presentingViewController {
+            // Case A: Presented Modally -> Dismiss
+            self.dismiss(animated: true) {
+                // Refresh the Analytics screen underneath
+                (presentingVC as? AnalyticsViewController)?.viewWillAppear(true)
             }
-
-        
-        self.webAuthSession?.presentationContextProvider = self
-        // true if we want to force the login screen to appear every time
-        // false if want it to remember
-        self.webAuthSession?.prefersEphemeralWebBrowserSession = true
-        self.webAuthSession?.start()
+        } else {
+            // Case B: Root View -> Segue
+            self.performSegue(withIdentifier: "goToAnalytics", sender: self)
+        }
     }
 
-    // MARK: - Instagram Action
+    // MARK: - Button Actions
     @IBAction func didTapInstagram(_ sender: UIButton) {
-        print("Starting Instagram Auth...")
-        let authURL = SocialAuthManager.shared.getInstagramAuthURL()
-        guard let url = URL(string: authURL) else { return }
-
-        self.webAuthSession = ASWebAuthenticationSession(
-            url: url,
-            callbackURLScheme: "https") { [weak self] callbackURL, error in
-                
-                guard let self = self else { return }
-                if let error = error { print("Auth Failed: \(error.localizedDescription)"); return }
-                
-                // Intercept the redirect to handleapp.com
-                if let callbackURL = callbackURL,
-                   callbackURL.absoluteString.starts(with: "https://handleapp.com/auth/") {
-                    
-
-                    if let token = self.getQueryStringParameter(url: callbackURL.absoluteString.replacingOccurrences(of: "#", with: "?"), param: "access_token") {
-                         
-                         print("INSTAGRAM TOKEN SECURED: \(token)")
-                         Task {
-                             await SupabaseManager.shared.saveSocialToken(platform: "instagram", token: token)
-                             self.handleSuccessfulLogin()
-                         }
-                    }
-                }
-            }
-        self.webAuthSession?.presentationContextProvider = self
-        self.webAuthSession?.prefersEphemeralWebBrowserSession = true
-        self.webAuthSession?.start()
+        handlePlatformToggle(platform: "instagram", button: sender)
     }
-
+    
+    @IBAction func didTapTwitter(_ sender: UIButton) {
+        handlePlatformToggle(platform: "twitter", button: sender)
+    }
     
     @IBAction func didTapLinkedIn(_ sender: UIButton) {
-        print("Starting LinkedIn Auth...")
-        
-        let authURL = SocialAuthManager.shared.getLinkedInAuthURL()
-        guard let url = URL(string: authURL) else { return }
-        
-        self.webAuthSession = ASWebAuthenticationSession(
-            url: url,
-            callbackURLScheme: "https") { [weak self] callbackURL, error in
-                
-                guard let self = self else { return }
-                if let error = error { return }
-                
-                //Intercept the redirect by checking the string
-                if let callbackURL = callbackURL,
-                   callbackURL.absoluteString.starts(with: "https://handleapp.com/auth/") {
-                    
-                    print("Intercepted LinkedIn HTTPS Callback!")
-                    
-                    // Extract the code from the intercepted URL
-                    if let code = self.getQueryStringParameter(url: callbackURL.absoluteString, param: "code") {
-                        
-                        SocialAuthManager.shared.exchangeLinkedInCodeForToken(code: code) { result in
-                            DispatchQueue.main.async {
-                                switch result {
-                                case .success(let token):
-                                    Task {
-                                        await SupabaseManager.shared.saveSocialToken(platform: "linkedin", token: token)
+        handlePlatformToggle(platform: "linkedin", button: sender)
+    }
+    
+    @IBAction func didTapSkip(_ sender: UIButton) {
+        finishAuthFlow(success: true)
+    }
 
-                                        self.handleSuccessfulLogin()
-                                    }
-                                case .failure(let error):
-                                    print("LinkedIn Token Exchange Failed: \(error.localizedDescription)")
-                                }
-                            }
-                        }
+    // MARK: - Toggle Logic
+    func handlePlatformToggle(platform: String, button: UIButton) {
+        if connectedPlatforms.contains(platform) {
+            // DISCONNECT FLOW
+            let alert = UIAlertController(title: "Disconnect \(platform.capitalized)?", message: "Stop tracking stats?", preferredStyle: .actionSheet)
+            alert.addAction(UIAlertAction(title: "Disconnect", style: .destructive) { _ in
+                
+                // SHOW LOADER ⏳
+                self.toggleButtonLoading(button: button, isLoading: true)
+                
+                Task {
+                    _ = await SupabaseManager.shared.disconnectSocial(platform: platform)
+                    self.connectedPlatforms.remove(platform)
+                    DispatchQueue.main.async {
+                        // HIDE LOADER ✅
+                        self.toggleButtonLoading(button: button, isLoading: false)
+                        
+                        // Reset Visuals
+                        button.backgroundColor = .clear
                     }
                 }
+            })
+            alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+            present(alert, animated: true)
+            
+        } else {
+            // CONNECT FLOW
+            if platform == "instagram" { showConnectInstagramAlert(button) }
+            if platform == "twitter" { showConnectTwitterAlert(button) }
+            if platform == "linkedin" { showConnectLinkedInAlert(button) }
+        }
+    }
+    
+    // MARK: - Loader Helper
+    func toggleButtonLoading(button: UIButton, isLoading: Bool) {
+        if isLoading {
+            // 1. Clear text and disable button
+            button.setTitle("", for: .normal)
+            button.isUserInteractionEnabled = false
+            
+            // 2. Add Spinner if not already there
+            if button.viewWithTag(999) == nil {
+                let spinner = UIActivityIndicatorView(style: .medium)
+                spinner.color = .label // Adapts to light/dark mode
+                spinner.tag = 999
+                spinner.translatesAutoresizingMaskIntoConstraints = false
+                button.addSubview(spinner)
+                
+                // Center the spinner in the button
+                NSLayoutConstraint.activate([
+                    spinner.centerXAnchor.constraint(equalTo: button.centerXAnchor),
+                    spinner.centerYAnchor.constraint(equalTo: button.centerYAnchor)
+                ])
+                spinner.startAnimating()
             }
+        } else {
+            // 1. Remove Spinner
+            if let spinner = button.viewWithTag(999) as? UIActivityIndicatorView {
+                spinner.stopAnimating()
+                spinner.removeFromSuperview()
+            }
+            // 2. Re-enable button
+            button.isUserInteractionEnabled = true
+        }
+    }
+    
+    // MARK: - UI Helper Functions
+    
+    func updateButtonVisuals(platform: String, button: UIButton) {
+        if connectedPlatforms.contains(platform) {
+            button.backgroundColor = .systemGray5
+            button.setTitleColor(.systemGray, for: .normal)
+            button.setTitle("\(platform.capitalized) Connected ✓", for: .normal)
+        }
+    }
+
+    func showConnectInstagramAlert(_ sender: UIButton) {
+        let alert = UIAlertController(title: "Connect Instagram", message: "Enter username (no @)", preferredStyle: .alert)
+        alert.addTextField { $0.placeholder = "username" }
+        alert.addAction(UIAlertAction(title: "Connect", style: .default) { _ in
+            guard let handle = alert.textFields?.first?.text, !handle.isEmpty else { return }
+            self.performConnect(platform: "instagram", handle: handle, button: sender)
+        })
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        present(alert, animated: true)
+    }
+    
+    func showConnectTwitterAlert(_ sender: UIButton) {
+        let alert = UIAlertController(title: "Connect X (Twitter)", message: "Enter username (e.g. elonmusk)", preferredStyle: .alert)
+        alert.addTextField { $0.placeholder = "username" }
+        alert.addAction(UIAlertAction(title: "Connect", style: .default) { _ in
+            guard let handle = alert.textFields?.first?.text, !handle.isEmpty else { return }
+            self.performConnect(platform: "twitter", handle: handle, button: sender)
+        })
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        present(alert, animated: true)
+    }
+    
+    func showConnectLinkedInAlert(_ sender: UIButton) {
+        let alert = UIAlertController(title: "Connect LinkedIn", message: "Enter username (from profile URL)", preferredStyle: .alert)
+        alert.addTextField { $0.placeholder = "username" }
+        alert.addAction(UIAlertAction(title: "Connect", style: .default) { _ in
+            guard let handle = alert.textFields?.first?.text, !handle.isEmpty else { return }
+            self.performConnect(platform: "linkedin", handle: handle, button: sender)
+        })
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        present(alert, animated: true)
+    }
+    
+    // Shared Connect Function
+    func performConnect(platform: String, handle: String, button: UIButton) {
+        // SHOW LOADER ⏳
+        toggleButtonLoading(button: button, isLoading: true)
         
-        self.webAuthSession?.presentationContextProvider = self
-        self.webAuthSession?.prefersEphemeralWebBrowserSession = true
-        self.webAuthSession?.start()
-    }
-    
-    // MARK: - Helper Logic
-    func getQueryStringParameter(url: String, param: String) -> String? {
-        guard let urlComponents = URLComponents(string: url) else { return nil }
-        return urlComponents.queryItems?.first(where: { $0.name == param })?.value
-    }
-    
-    func handleSuccessfulLogin() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            // wait 0.5 s and then segue back to analytics screen
-            self.performSegue(withIdentifier: "goToAnalytics", sender: self)
+        Task {
+            // 1. Save Handle
+            await SupabaseManager.shared.saveSocialHandle(platform: platform, handle: handle)
+            
+            // 2. Run Scrape
+            var score = 0
+            if platform == "instagram" { score = await SupabaseManager.shared.runInstaScoreCalculation(handle: handle) }
+            if platform == "twitter" { score = await SupabaseManager.shared.runTwitterScoreCalculation(handle: handle) }
+            if platform == "linkedin" { score = await SupabaseManager.shared.runLinkedInScoreCalculation(handle: handle) }
+            
+            // 3. Update UI
+            self.connectedPlatforms.insert(platform)
+            DispatchQueue.main.async {
+                // HIDE LOADER ✅
+                self.toggleButtonLoading(button: button, isLoading: false)
+                
+                self.updateButtonVisuals(platform: platform, button: button)
+                self.checkConnections()
+            }
         }
     }
     
     func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
         return self.view.window!
-    }
-    
-    @IBAction func didTapSkip(_ sender: UIButton) {
-        if self.presentingViewController != nil {
-            self.dismiss(animated: true, completion: nil)
-        } else {
-            performSegue(withIdentifier: "goToAnalytics", sender: self)
-        }
     }
 }

@@ -25,7 +25,8 @@ class PostsViewController: UIViewController {
     @IBOutlet weak var tableViewHeightConstraint: NSLayoutConstraint!
     var todayScheduledPosts: [Post] = []
     var allPosts: [Post] = []
-
+    var existingPostId: UUID?
+    
     var currentWeekStartDate: Date = Calendar.current.startOfDay(for: Date())
     
     override func viewDidLoad() {
@@ -404,6 +405,7 @@ extension PostsViewController: UITableViewDataSource, UITableViewDelegate {
                  let selectedPost: Post
                  selectedPost = todayScheduledPosts[indexPath.row]
                 let draftData = EditorDraftData(
+                                id: selectedPost.id,
                                 postHeading: selectedPost.postHeading,
                                 platformName: selectedPost.platformName,
                                 platformIconName: selectedPost.platformIconName,

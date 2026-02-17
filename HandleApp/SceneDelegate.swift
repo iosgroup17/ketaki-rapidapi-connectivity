@@ -18,11 +18,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let window = UIWindow(windowScene: windowScene)
         self.window = window
         
-        let alwaysShowOnboarding = false
+        let alwaysShowOnboarding = true
         
         let hasCompletedOnboarding = UserDefaults.standard.bool(forKey: "hasCompletedOnboarding")
         
-        if alwaysShowOnboarding{
+        if alwaysShowOnboarding || !hasCompletedOnboarding {
             showOnboarding(window: window)
         } else {
             showMainApp(window: window)

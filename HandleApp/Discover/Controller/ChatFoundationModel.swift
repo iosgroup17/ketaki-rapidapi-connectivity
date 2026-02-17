@@ -52,6 +52,7 @@ actor PostGenerationModel {
         // Simulator Mock (Since local models don't run on Simulator)
         try await Task.sleep(nanoseconds: 2 * 1_000_000_000)
         return EditorDraftData(
+            postHeading: "A professional workspace",
             platformName: request.platform,
             platformIconName: "doc.text",
             caption: "[Simulator Mock]: Based on '\(request.idea)', here is a \(request.tone) post for \(request.platform).",

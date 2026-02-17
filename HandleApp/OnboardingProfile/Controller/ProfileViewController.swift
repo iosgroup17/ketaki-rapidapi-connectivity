@@ -68,31 +68,20 @@ class ProfileViewController: UIViewController {
     func loadData() {
         let store = OnboardingDataStore.shared
         
-        //Update Progress
         completionProgress.setProgress(store.completionPercentage, animated: false)
         
-        //Clear Old Rows
-        accountStack.arrangedSubviews.forEach { subview in
-            subview.removeFromSuperview()
+        [accountStack, detailsStack, socialStack].forEach { stack in
+            stack?.arrangedSubviews.forEach { $0.removeFromSuperview() }
         }
 
-        detailsStack.arrangedSubviews.forEach { subview in
-            subview.removeFromSuperview()
-        }
-
-        socialStack.arrangedSubviews.forEach { subview in
-            subview.removeFromSuperview()
-        }
-
-        // name
+        
         addRow(to: accountStack, title: "Display Name", value: store.displayName ?? "", showIcon: false) {
             self.showTextInput(title: "Edit Name", currentValue: store.displayName) { text in
                 store.displayName = text
-                self.loadData()          
+                self.loadData()
             }
         }
         
-        // bio
         addRow(to: accountStack, title: "Short Bio", value: store.shortBio ?? "", showIcon: false) {
             self.showTextInput(title: "Edit Bio", currentValue: store.shortBio) { text in
                 store.shortBio = text
@@ -100,53 +89,43 @@ class ProfileViewController: UIViewController {
             }
         }
       
-        // role
-        let role = (store.userAnswers[0] as? [String])?.first ?? ""
+        let role = (store.userAnswers[0] as? [String])?.first ?? "Select"
         addRow(to: detailsStack, title: "Role", value: role) {
             self.openEditor(forStep: 0)
         }
         
-        // industry
-        let goals = (store.userAnswers[1] as? [String])?.joined(separator: ", ") ?? ""
-        addRow(to: detailsStack, title: "Industry", value: goals) {
+        let workFocus = (store.userAnswers[1] as? [String])?.first ?? "Select"
+        addRow(to: detailsStack, title: "Focus", value: workFocus) {
             self.openEditor(forStep: 1)
         }
         
-        // goals
-        let industry = (store.userAnswers[2] as? [String])?.first ?? ""
-        addRow(to: detailsStack, title: "Goals", value: industry) {
+        let industry = (store.userAnswers[2] as? [String])?.first ?? "Select"
+        addRow(to: detailsStack, title: "Industry", value: industry) {
             self.openEditor(forStep: 2)
         }
         
-        // content formats
-        let formats = (store.userAnswers[3] as? [String])?.joined(separator: ", ") ?? ""
-        addRow(to: detailsStack, title: "Formats", value: formats) {
+        let goals = (store.userAnswers[3] as? [String])?.first ?? "Select"
+        addRow(to: detailsStack, title: "Goals", value: goals) {
             self.openEditor(forStep: 3)
         }
         
-        // target audience
-        let audienceList = store.userAnswers[5] as? [String]
-        let audience = audienceList?.joined(separator: ", ") ?? "General"
+        let formats = (store.userAnswers[4] as? [String])?.joined(separator: ", ") ?? "Select"
+        addRow(to: detailsStack, title: "Formats", value: formats) {
+            self.openEditor(forStep: 4)
+        }
         
-        addRow(to: detailsStack, title: "Audience", value: audience) {
+        let platforms = (store.userAnswers[5] as? [String])?.joined(separator: ", ") ?? "Select"
+        addRow(to: detailsStack, title: "Platforms", value: platforms) {
             self.openEditor(forStep: 5)
         }
         
-     
-        if let toneArray = store.userAnswers[4] as? [String] {
-            let toneString = toneArray.joined(separator: ", ")
-            
-            addRow(to: detailsStack, title: "Tone", value: toneString) {
-                self.openEditor(forStep: 4)
-            }
-        } else {
-            addRow(to: detailsStack, title: "Tone", value: "Select") {
-                self.openEditor(forStep: 4)
-            }
+        let audience = (store.userAnswers[6] as? [String])?.joined(separator: ", ") ?? "General"
+        addRow(to: detailsStack, title: "Audience", value: audience) {
+            self.openEditor(forStep: 6)
         }
-     
+
         setupSocialRows()
-        
+
         hideLastSeparator(in: socialStack)
         hideLastSeparator(in: detailsStack)
         hideLastSeparator(in: accountStack)

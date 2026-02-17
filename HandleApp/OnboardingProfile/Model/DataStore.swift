@@ -11,7 +11,6 @@ class OnboardingDataStore {
     
     var steps: [OnboardingStep] = [
 
-        // STEP 0 — Role
         OnboardingStep(
             index: 0,
             title: "How do you identify professionally?",
@@ -23,7 +22,6 @@ class OnboardingDataStore {
             ]
         ),
 
-        // STEP 1 — What you're working on (moved up)
         OnboardingStep(
             index: 1,
             title: "What are you working on right now?",
@@ -37,7 +35,6 @@ class OnboardingDataStore {
             ]
         ),
 
-        // STEP 2 — Industry
         OnboardingStep(
             index: 2,
             title: "Which domain best fits your work?",
@@ -53,7 +50,6 @@ class OnboardingDataStore {
             ]
         ),
 
-        // STEP 3 — Goal
         OnboardingStep(
             index: 3,
             title: "What’s your main goal right now?",
@@ -82,7 +78,6 @@ class OnboardingDataStore {
                 )
         ]),
 
-        // STEP 4 — Content formats
         OnboardingStep(
             index: 4,
             title: "What content feels natural to you?",
@@ -97,7 +92,6 @@ class OnboardingDataStore {
             ]
         ),
 
-        // STEP 6 — Platforms
         OnboardingStep(
             index: 5,
             title: "Where do you want to post?",
@@ -110,7 +104,6 @@ class OnboardingDataStore {
             ]
         ),
 
-        // STEP 8 — Audience
         OnboardingStep(
             index: 6,
             title: "Who should your content reach?",
@@ -127,8 +120,6 @@ class OnboardingDataStore {
         )
     ]
 
-
-    
     var profileImage: UIImage?
     var displayName: String?
     var shortBio: String?

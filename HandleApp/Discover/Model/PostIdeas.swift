@@ -107,6 +107,7 @@ struct TopicAction: Codable {
 
 
 struct EditorDraftData: Codable {
+    var id: UUID?
     let postHeading: String?
     let platformName: String
     let platformIconName: String?
@@ -117,6 +118,6 @@ struct EditorDraftData: Codable {
     
     enum CodingKeys: String, CodingKey {
         case postHeading = "post_heading" 
-        case platformName, platformIconName, caption, images, hashtags, postingTimes
+        case platformName, platformIconName, caption, images, hashtags, postingTimes, id
     }
 }
