@@ -83,11 +83,11 @@ class SupabaseManager {
     }
     
     var currentUserID: UUID {
-        // Priority 1: Real Authenticated User
-        if let authID = client.auth.currentSession?.user.id {
-            return authID
-        }
-        // Priority 2: Fallback for Simulator/Testing
+//        // Priority 1: Real Authenticated User
+//        if let authID = client.auth.currentSession?.user.id {
+//            return authID
+//        }
+//        // Priority 2: Fallback for Simulator/Testing
         return testUserID
     }
     
@@ -488,19 +488,18 @@ extension SupabaseManager {
                 .execute()
         }
 
-        // Delete a post
-        func deleteLogPost(id: UUID) async {
-            do {
-                try await client
-                    .from("posts")
-                    .delete()
-                    .eq("id", value: id)
-                    .execute()
-                print("Post deleted")
-            } catch {
-                print("Delete error: \(error)")
-            }
+    func deleteLogPost(id: UUID) async {
+        do {
+            try await client
+                .from("posts")
+                .delete()
+                .eq("id", value: id.uuidString) // Use .uuidString to be safe
+                .execute()
+            print("✅ Post deleted successfully")
+        } catch {
+            print("❌ Delete error: \(error)")
         }
+    }
     
     func upsertPost(post: Post) async throws {
         try await client

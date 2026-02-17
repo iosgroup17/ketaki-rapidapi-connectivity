@@ -349,27 +349,19 @@ extension EditorSuiteViewController: UICollectionViewDataSource, UICollectionVie
     }
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-            if segue.identifier == "showSchedulerSegue" {
+        if segue.identifier == "showSchedulerSegue" {
                 
-                // 1. Unwrap the Navigation Controller to find the Scheduler
                 if let navVC = segue.destination as? UINavigationController,
                    let destinationVC = navVC.topViewController as? SchedulerViewController {
                     
-                    // 2. Gather the Current Data
-                    // Use the text from the TextView (in case user edited it)
+                    // 1. Gather Data (Keep your existing logic)
                     let finalCaption = self.captionTextView.text ?? ""
-                    
-                    // Use displayedImages because it contains the actual UIImages (user selected or loaded)
                     let finalImages = self.displayedImages.isEmpty ? nil : self.displayedImages
-                    
-                    // Get Draft Info (Platform, Icon, Hashtags)
                     let platform = self.draft?.platformName ?? "Post"
                     let icon = self.draft?.platformIconName
                     let tags = self.draft?.hashtags ?? []
                     let heading = self.draft?.postHeading ?? ""
                     
-                    
-                    // 3. Create the Struct
                     let package = ScheduledPostData(
                         postHeading: heading,
                         platformName: platform,
@@ -379,11 +371,17 @@ extension EditorSuiteViewController: UICollectionViewDataSource, UICollectionVie
                         hashtags: tags
                     )
                     
-                    // 4. Pass the Struct to Scheduler
                     destinationVC.postData = package
                     destinationVC.captionText = captionTextView.text
                     destinationVC.postHeading = draft?.postHeading
-
+                    
+                    // ✅ FIX 1: Pass the Existing ID!
+                    // This ensures SchedulerVC updates the OLD row instead of creating a NEW one.
+                    destinationVC.existingPostId = draft?.id
+                    
+                    // ✅ FIX 2: Pass the Image Filenames (Strings)
+                    // SchedulerVC needs these for the database string array, otherwise it saves as nil/empty
+                    destinationVC.imageNames = draft?.images
                 }
             }
         }
