@@ -220,38 +220,116 @@ class EditorSuiteViewController: UIViewController {
         }
         return urls
     }
+    func markPostAsPublished() {
+        guard let draftID = draft?.id else { return }
+        
+        // Create a 'Post' object with published status
+        let publishedPost = Post(
+            id: draftID,
+            userId: SupabaseManager.shared.currentUserID,
+            topicId: nil,
+            status: .published, // Assuming your enum has this case
+            postHeading: draft?.postHeading ?? "",
+            fullCaption: draft?.caption,
+            imageNames: draft?.images,
+            platformName: draft?.platformName ?? "General",
+            platformIconName: draft?.platformIconName,
+            hashtags: draft?.hashtags,
+            scheduledAt: nil,
+            publishedAt: Date(), // Set the current date as published date
+            likes: 0,
+            engagementScore: 0.0,
+            suggestedHashtags: nil,
+            optimalPostingTimes: nil
+        )
+        
+        Task {
+            do {
+                try await SupabaseManager.shared.upsertPost(post: publishedPost)
+                await MainActor.run {
+                    self.showToast(message: "Post marked as Published!")
+                    // Optional: Dismiss or move the user back to the home screen
+                    self.navigationController?.popToRootViewController(animated: true)
+                }
+            } catch {
+                print("Failed to update status: \(error)")
+            }
+        }
+    }
+    
+    func showToast(message: String) {
+        let toastLabel = UILabel()
+        toastLabel.text = message
+        toastLabel.textColor = .white
+        toastLabel.backgroundColor = UIColor.black.withAlphaComponent(0.8)
+        toastLabel.textAlignment = .center
+        toastLabel.font = .systemFont(ofSize: 14, weight: .medium)
+        toastLabel.alpha = 0
+        toastLabel.layer.cornerRadius = 15
+        toastLabel.clipsToBounds = true
+        
+        let expectedSize = toastLabel.sizeThatFits(CGSize(width: self.view.frame.width - 40, height: 40))
+        toastLabel.frame = CGRect(x: self.view.frame.width/2 - (expectedSize.width + 20)/2,
+                                  y: self.view.frame.height - 100,
+                                  width: expectedSize.width + 20,
+                                  height: 35)
+        
+        self.view.addSubview(toastLabel)
+        UIView.animate(withDuration: 0.3, animations: { toastLabel.alpha = 1.0 }) { _ in
+            UIView.animate(withDuration: 0.3, delay: 2.0, options: .curveEaseOut, animations: { toastLabel.alpha = 0.0 }) { _ in
+                toastLabel.removeFromSuperview()
+            }
+        }
+    }
     
     func handleShareFlow() {
-            guard let text = captionTextView.text else { return }
+        guard let text = captionTextView.text else { return }
+        
+        UIPasteboard.general.string = text
+        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+        
+        let textSource = ShareTextSource(text: text)
+        let imageURLs = getFileURLs(from: displayedImages)
+        
+        var itemsToShare: [Any] = [textSource]
+        itemsToShare.append(contentsOf: imageURLs)
+        
+        let activityVC = UIActivityViewController(activityItems: itemsToShare, applicationActivities: nil)
+        
+        activityVC.completionWithItemsHandler = { (activityType, completed, returnedItems, error) in
+            // 1. Clean up images
+            imageURLs.forEach { try? FileManager.default.removeItem(at: $0) }
             
-            // 1. Always copy to Clipboard (Insurance for Instagram)
-            UIPasteboard.general.string = text
-            UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-            
-            // 2. Prepare the Smart Text Source
-            let textSource = ShareTextSource(text: text)
-            
-            // 3. Get the working Image URLs (which fixed your Instagram crash)
-            let imageURLs = getFileURLs(from: displayedImages)
-            
-            // 4. Combine them
-            // Instagram will see: [nil, ImageURL, ImageURL] -> Works!
-            // X (Twitter) will see: ["Your Caption", ImageURL, ImageURL] -> Works!
-            var itemsToShare: [Any] = [textSource]
-            itemsToShare.append(contentsOf: imageURLs)
-            
-            let activityVC = UIActivityViewController(activityItems: itemsToShare, applicationActivities: nil)
-            
-            if let popover = activityVC.popoverPresentationController {
-                popover.barButtonItem = self.navigationItem.rightBarButtonItem
+            // 2. Only proceed if the user actually clicked an app (completed)
+            if completed {
+                // Give the UI a moment to settle after the share sheet slides down
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    let alert = UIAlertController(
+                        title: "Confirm Post",
+                        message: "Did you successfully share this post to \(self.draft?.platformName ?? "the platform")?",
+                        preferredStyle: .alert
+                    )
+                    
+                    let yesAction = UIAlertAction(title: "Yes, it's posted!", style: .default) { _ in
+                        self.markPostAsPublished()
+                    }
+                    
+                    let noAction = UIAlertAction(title: "Not yet", style: .cancel, handler: nil)
+                    
+                    alert.addAction(yesAction)
+                    alert.addAction(noAction)
+                    
+                    self.present(alert, animated: true)
+                }
             }
-            
-            activityVC.completionWithItemsHandler = { _, _, _, _ in
-                imageURLs.forEach { try? FileManager.default.removeItem(at: $0) }
-            }
-            
-            self.present(activityVC, animated: true)
         }
+        
+        if let popover = activityVC.popoverPresentationController {
+            popover.barButtonItem = self.navigationItem.rightBarButtonItem
+        }
+        
+        self.present(activityVC, animated: true)
+    }
 
 }
 

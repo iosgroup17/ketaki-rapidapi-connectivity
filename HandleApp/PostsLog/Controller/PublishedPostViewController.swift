@@ -16,11 +16,14 @@ class PublishedPostViewController: UIViewController, UITableViewDelegate, UITabl
     var publishedPosts: [Post] = []
     var displayedPosts: [Post] = []
     var currentTimeFilter: String = "All"
-    var expandedPostId: UUID? = nil
-    var expandedPost: String? = nil
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        let imageNib = UINib(nibName: "PublishedPostImageTableViewCell", bundle: nil)
+            publishedTableView.register(imageNib, forCellReuseIdentifier: "ImagePublishedCell")
+           
+        let textNib = UINib(nibName: "PublishedPostTextTableViewCell", bundle: nil)
+            publishedTableView.register(textNib, forCellReuseIdentifier: "TextPublishedCell")
         self.publishedTableView.delegate = self
         self.publishedTableView.dataSource = self
         displayedPosts = publishedPosts
@@ -164,61 +167,33 @@ class PublishedPostViewController: UIViewController, UITableViewDelegate, UITabl
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
       
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: "published_cell", for: indexPath) as? PublishedPostTableViewCell else {
-            fatalError("Could not dequeue PublishedPostTableViewCell")
-        }
-
         let post = displayedPosts[indexPath.row]
-        let isExpanded = (expandedPostId == post.id)
+        let hasImages = post.imageNames?.isEmpty == false
+        let identifier = hasImages ? "ImagePublishedCell" : "TextPublishedCell"
 
-        // Assuming PublishedPostTableViewCell has a configure method
-        cell.configure(with: post, isExpanded: isExpanded)
-
-        return cell
+        // 3. Dequeue and configure
+        if hasImages {
+            let cell = tableView.dequeueReusableCell(withIdentifier: "ImagePublishedCell", for: indexPath) as! PublishedPostImageTableViewCell
+            cell.configure(with: post)
+            return cell
+        } else {
+            let cell = tableView.dequeueReusableCell(withIdentifier: "TextPublishedCell", for: indexPath) as! PublishedPostTextTableViewCell
+            cell.configure(with: post)
+            return cell
+        }
     }
-
-    //For collapsible analytics view height constraint.
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        let post = displayedPosts[indexPath.row]
-        let baseHeight: CGFloat = 60
-        let analyticsHeight: CGFloat = 100
-        let padding: CGFloat = 20
-
-        if expandedPostId == post.id {
-            return baseHeight + analyticsHeight + padding
-        } else {
-            return baseHeight
-        }
-    }
-    
-    //Analytics for selected post.
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        tableView.deselectRow(at: indexPath, animated: true)
-        
-        let selectedPost = displayedPosts[indexPath.row]
-        guard let postId = selectedPost.id else { return }
-
-        let previousExpandedId = expandedPostId
-
-        if expandedPostId == postId {
-                expandedPostId = nil
-        } else {
-                expandedPostId = postId
+            // Automatically calculate height based on Autolayout constraints in the cell
+            return UITableView.automaticDimension
         }
         
-        var indexPathsToReload = [indexPath]
-        
-        if let previousId = previousExpandedId, previousId != postId,
-               let previousIndex = displayedPosts.firstIndex(where: { $0.id == previousId }) {
-                indexPathsToReload.append(IndexPath(row: previousIndex, section: 0))
+        // Optional: Provide an estimated height for performance
+        func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
+            return 150
         }
-
-        tableView.beginUpdates()
-        tableView.reloadRows(at: indexPathsToReload, with: .automatic)
-        tableView.endUpdates()
         
-        if expandedPostId == postId {
-            tableView.scrollToRow(at: indexPath, at: .middle, animated: true)
+        func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+            // Just deselect the row, no expansion logic needed anymore
+            tableView.deselectRow(at: indexPath, animated: true)
         }
-    }
 }
