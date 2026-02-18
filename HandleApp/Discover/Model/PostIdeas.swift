@@ -8,6 +8,42 @@ struct DiscoverIdeaResponse {
     var publishReadyPosts: [PublishReadyPost] = []
 }
 
+//struct TrendingTopic: Codable, Identifiable {
+//    var id: String = UUID().uuidString // Auto-generate ID for local AI items
+//    let topicName: String
+//    let shortDescription: String
+//    let platformIcon: String
+//    let hashtags: [String]
+//    let trendingContext: String
+//    let category: String
+//    
+//    // Map JSON keys (snake_case) to Swift properties (camelCase)
+//    enum CodingKeys: String, CodingKey {
+//        case id // optional, if AI sends it (it won't based on prompt)
+//        case topicName = "topic_name"
+//        case shortDescription = "short_description"
+//        case platformIcon = "platform_icon"
+//        case hashtags
+//        case trendingContext = "trending_context"
+//        case category
+//    }
+//    
+//    // Custom init to handle the missing ID from AI
+//    init(from decoder: Decoder) throws {
+//        let container = try decoder.container(keyedBy: CodingKeys.self)
+//        
+//        // Use ID if present, otherwise generate new UUID
+//        self.id = try container.decodeIfPresent(String.self, forKey: .id) ?? UUID().uuidString
+//        
+//        self.topicName = try container.decode(String.self, forKey: .topicName)
+//        self.shortDescription = try container.decode(String.self, forKey: .shortDescription)
+//        self.platformIcon = try container.decode(String.self, forKey: .platformIcon)
+//        self.hashtags = try container.decode([String].self, forKey: .hashtags)
+//        self.trendingContext = try container.decode(String.self, forKey: .trendingContext)
+//        self.category = try container.decode(String.self, forKey: .category)
+//    }
+//}
+
 struct TrendingTopic: Codable {
     let id: String
     let topicName: String

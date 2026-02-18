@@ -12,8 +12,7 @@ class TopicIdeaViewController: UIViewController {
     @IBOutlet weak var collectionView: UICollectionView!
     
     var topic: TrendingTopic?
-
-    
+    var generatedPosts: [PublishReadyPost] = []
     var pageTitle: String = "Topic Ideas"
     
     override func viewDidLoad() {
@@ -53,12 +52,58 @@ class TopicIdeaViewController: UIViewController {
         collectionView.delegate = self
         
         collectionView.collectionViewLayout = generateLayout()
+        generateContentForTopic()
         
     }
     
+    func generateContentForTopic() {
+            guard let currentTopic = topic else { return }
+            
+            // Construct a clear string for the AI to understand the trend
+            let trendContextString = "\(currentTopic.topicName): \(currentTopic.shortDescription). Context: \(currentTopic.trendingContext ?? "")"
+            
+            self.showLoading() // Reuse your existing loading indicator
+            
+            Task {
+                // 1. Fetch User Context (needed for the engine)
+                let userProfile = await SupabaseManager.shared.fetchUserProfile() ?? UserProfile(
+                    professionalIdentity: ["Content Creator"],
+                    currentFocus: ["Growth"],
+                    industry: ["General"],
+                    primaryGoals: ["Engagement"],
+                    contentFormats: ["Tips"],
+                    platforms: ["LinkedIn"],
+                    targetAudience: ["Professionals"]
+                )
+                
+                do {
+                    // 2. Call the Foundation Model Engine
+                    print("🤖 Generating posts for topic: \(currentTopic.topicName)")
+                    let aiPosts = try await OnDevicePostEngine.shared.generatePublishReadyPosts(
+                        trendText: trendContextString,
+                        context: userProfile
+                    )
+                    
+                    // 3. Update UI
+                    await MainActor.run {
+                        self.generatedPosts = aiPosts
+                        // Reload only the "Posts" section (Section 2)
+                        self.collectionView.reloadSections(IndexSet(integer: 2))
+                        self.hideLoading()
+                    }
+                    
+                } catch {
+                    print("Error generating topic posts: \(error)")
+                    await MainActor.run {
+                        self.hideLoading()
+                    }
+                }
+            }
+        }
+    
     func showLoading() {
-            let alert = UIAlertController(title: nil, message: "Refining Draft...", preferredStyle: .alert)
-            let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
+            let alert = UIAlertController(title: nil, message: "Generating posts...", preferredStyle: .alert)
+            let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 20, width: 50, height: 50))
             loadingIndicator.hidesWhenStopped = true
             loadingIndicator.style = .medium
             loadingIndicator.startAnimating()
@@ -200,7 +245,7 @@ extension TopicIdeaViewController: UICollectionViewDataSource, UICollectionViewD
         } else if section == 1 {
             return data.actions?.count ?? 0
         } else {
-            return data.relevantPosts?.count ?? 0
+            return generatedPosts.count
         }
     }
     
@@ -236,15 +281,12 @@ extension TopicIdeaViewController: UICollectionViewDataSource, UICollectionViewD
         }
         
         if indexPath.section == 2 {
-
-            guard let posts = topic?.relevantPosts, indexPath.row < posts.count else {
-                return UICollectionViewCell()
-            }
-            let post = posts[indexPath.row]
+            // [CHANGED] Use generatedPosts array
+            guard indexPath.row < generatedPosts.count else { return UICollectionViewCell() }
+            let post = generatedPosts[indexPath.row]
             
-  
+            // Logic to choose Image vs Text cell
             if let images = post.postImage, !images.isEmpty {
-
                 let cell = collectionView.dequeueReusableCell(
                     withReuseIdentifier: "PublishReadyImageCollectionViewCell",
                     for: indexPath
@@ -252,10 +294,7 @@ extension TopicIdeaViewController: UICollectionViewDataSource, UICollectionViewD
                 
                 cell.configure(with: post)
                 return cell
-                
             } else {
-                
-    
                 let cell = collectionView.dequeueReusableCell(
                     withReuseIdentifier: "PublishReadyTextCollectionViewCell",
                     for: indexPath
@@ -302,11 +341,11 @@ extension TopicIdeaViewController: UICollectionViewDataSource, UICollectionViewD
             }
         }
         if indexPath.section == 2 {
-            guard let posts = topic?.relevantPosts, indexPath.row < posts.count else { return }
-            let previewPost = posts[indexPath.row]
+            guard indexPath.row < generatedPosts.count else { return }
+            let previewPost = generatedPosts[indexPath.row] // Get from local array
 
             self.showLoading()
-            
+
             Task {
                 do {
   

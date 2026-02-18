@@ -21,8 +21,7 @@ actor OnDevicePostEngine {
         self.session = newSession
         return newSession
     }
-    
-    // MARK: - GENERATE LIST OF IDEAS
+ 
     func generatePublishReadyPosts(trendText: String, context: UserProfile) async throws -> [PublishReadyPost] {
         let session = try await ensureSession()
         
@@ -204,5 +203,85 @@ extension OnDevicePostEngine {
         var draft = try JSONDecoder().decode(EditorDraftData.self, from: data)
         
         return draft
+    }
+}
+
+extension OnDevicePostEngine {
+
+    /// Generates trending topics based on the user's industry and audience context
+    func generateTrendingTopics(context: UserProfile) async throws -> [TrendingTopic] {
+        let session = try await ensureSession()
+        
+        let prompt = """
+        ACT AS: Senior Market Trend Analyst & Social Media Strategist.
+        
+        CONTEXT:
+        - User Professional Identity: \(context.professionalIdentity.joined(separator: ", "))
+        - Industry: \(context.industry.joined(separator: ", "))
+        - Target Audience: \(context.targetAudience.joined(separator: ", "))
+        - Primary Goals: \(context.primaryGoals.joined(separator: ", "))
+        
+        TASK:
+        Identify 5 emerging or evergreen "Trending Topics" specifically relevant to this user's industry and audience right now. These should be topics that would perform well on social media.
+        
+        FIELD REQUIREMENTS (Based on Schema):
+        1. "topic_name": Short, punchy title (Max 4 words).
+        2. "short_description": A clear, 1-sentence explanation of what this trend is.
+        3. "category": A broad classification (e.g., "Technology", "Mindset", "Strategy", "News").
+        4. "trending_context": deeply specific insight on WHY this is relevant right now (e.g., "With the rise of X, this topic is gaining traction because...").
+        5. "platform_icon": Choose the BEST platform for this specific trend. Must be exactly one of: "icon-linkedin", "icon-x", "icon-instagram".
+        6. "hashtags": Array of 3 relevant, high-volume hashtags.
+        
+        OUTPUT CONSTRAINTS:
+        - Return ONLY raw JSON.
+        - No markdown formatting (no ```json).
+        - Must be a valid JSON object with a root key "topics".
+        
+        REQUIRED JSON STRUCTURE:
+        {
+          "topics": [
+            {
+              "topic_name": "Sustainable AI",
+              "short_description": "Exploring the environmental impact of large language models.",
+              "category": "Technology",
+              "trending_context": "As AI scales, scrutiny on energy consumption is hitting mainstream media, making this a hot debate topic.",
+              "platform_icon": "icon-linkedin",
+              "hashtags": ["#GreenTech", "#AI", "#Sustainability"]
+            }
+          ]
+        }
+        """
+
+        let response = try await session.respond(to: prompt)
+        
+        // 1. Clean JSON
+        guard let jsonString = extractAndCleanJSON(from: response.content) else {
+            print("🚨 AI Output was not valid JSON:\n\(response.content)")
+            throw NSError(domain: "TopicGen", code: 0, userInfo: [NSLocalizedDescriptionKey: "AI Output extraction failed"])
+        }
+        
+        guard let data = jsonString.data(using: .utf8) else {
+            throw NSError(domain: "TopicGen", code: 1, userInfo: [NSLocalizedDescriptionKey: "String to Data conversion failed"])
+        }
+        
+        print("📊 Generated Trends JSON:\n\(jsonString)")
+        
+        // 2. Decode
+        do {
+            // Helper struct to unwrap the root "topics" key
+            struct TopicWrapper: Codable {
+                let topics: [TrendingTopic]
+            }
+            
+            // NOTE: Ensure your TrendingTopic struct in the main app is Codable
+            // and has keys matching the JSON (snake_case) or uses CodingKeys.
+            let decoded = try JSONDecoder().decode(TopicWrapper.self, from: data)
+            return decoded.topics
+            
+        } catch {
+            print("❌ Decoding Error: \(error)")
+            print("❌ Offending JSON: \(jsonString)")
+            throw error
+        }
     }
 }

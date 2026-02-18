@@ -31,6 +31,5 @@ struct Message {
     let type: ChatMessageType
  
     var options: [String]? = nil
-    
     var draft: EditorDraftData? = nil
 }
