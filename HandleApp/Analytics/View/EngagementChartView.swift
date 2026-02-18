@@ -4,11 +4,17 @@ import Charts
 struct EngagementChartView: View {
     let metrics: [DailyMetric]
     
+    // 1. Filter and Sort for precision
     private var filteredAndSortedMetrics: [DailyMetric] {
         let range = currentWeekRange
         return metrics
             .filter { range.contains(Calendar.current.startOfDay(for: $0.date)) }
             .sorted { $0.date < $1.date }
+    }
+    
+    // 2. Identify platforms present in the data to build the legend
+    private var activePlatforms: [String] {
+        Array(Set(filteredAndSortedMetrics.map { $0.platform.lowercased() })).sorted()
     }
     
     private let platformColors: [String: Color] = [
@@ -28,57 +34,75 @@ struct EngagementChartView: View {
     }
 
     var body: some View {
-        Chart {
-            ForEach(filteredAndSortedMetrics) { item in
-                let dayStart = Calendar.current.startOfDay(for: item.date)
-                
-                // TREND LINE
-                LineMark(
-                    x: .value("Day", dayStart),
-                    y: .value("Engagement", item.engagement)
-                )
-                .foregroundStyle(by: .value("Platform", item.platform.lowercased()))
-                .interpolationMethod(.linear)
-                .lineStyle(StrokeStyle(lineWidth: 1.5,dash:[4,4])) // Solid thin line
+        VStack(alignment: .leading, spacing: 12) {
+            Chart {
+                ForEach(filteredAndSortedMetrics) { item in
+                    let dayStart = Calendar.current.startOfDay(for: item.date)
+                    
+                    // TREND LINE (Solid Thin)
+                    LineMark(
+                        x: .value("Day", dayStart),
+                        y: .value("Engagement", item.engagement)
+                    )
+                    .foregroundStyle(by: .value("Platform", item.platform.lowercased()))
+                    .interpolationMethod(.linear)
+                    .lineStyle(StrokeStyle(lineWidth: 1.5))
 
-                // DATA POINT
-                PointMark(
-                    x: .value("Day", dayStart),
-                    y: .value("Engagement", item.engagement)
-                )
-                .foregroundStyle(by: .value("Platform", item.platform.lowercased()))
-                .symbolSize(60)
-            }
-        }
-        .chartForegroundStyleScale([
-            "instagram": .pink,
-            "twitter": .black,
-            "linkedin": .blue
-        ])
-        .chartXScale(domain: currentWeekRange)
-        .chartYScale(domain: .automatic(includesZero: true))
-        .chartLegend(.hidden)
-        .chartXAxis {
-            // 🛑 FIX: Align labels directly under the vertical lines
-            AxisMarks(values: .stride(by: .day)) { value in
-                if let _ = value.as(Date.self) {
-                    AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5, dash: [2, 4]))
-                    AxisTick()
-                    AxisValueLabel(format: .dateTime.weekday(.narrow), centered: false) // 'centered: false' snaps it to the line
-                        .font(.caption2.bold())
+                    // DATA POINT
+                    PointMark(
+                        x: .value("Day", dayStart),
+                        y: .value("Engagement", item.engagement)
+                    )
+                    .foregroundStyle(by: .value("Platform", item.platform.lowercased()))
+                    .symbolSize(60)
                 }
             }
-        }
-        .chartYAxis {
-            AxisMarks(position: .leading) { value in
-                AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5))
-                if let intValue = value.as(Int.self) {
-                    AxisValueLabel(formatValue(intValue))
+            .chartForegroundStyleScale([
+                "instagram": .pink,
+                "twitter": .black,
+                "linkedin": .blue
+            ])
+            .chartXScale(domain: currentWeekRange)
+            .chartYScale(domain: .automatic(includesZero: true))
+            .chartLegend(.hidden) // Keep default legend hidden to use our custom one
+            .chartXAxis {
+                AxisMarks(values: .stride(by: .day)) { value in
+                    if let _ = value.as(Date.self) {
+                        AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5, dash: [2, 4]))
+                        AxisTick()
+                        AxisValueLabel(format: .dateTime.weekday(.narrow), centered: false)
+                            .font(.caption2.bold())
+                    }
                 }
             }
+            .chartYAxis {
+                AxisMarks(position: .leading) { value in
+                    AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5))
+                    if let intValue = value.as(Int.self) {
+                        AxisValueLabel(formatValue(intValue))
+                    }
+                }
+            }
+            .frame(minHeight: 200) // Ensure enough room for data
+            
+            // 🛑 NEW: CUSTOM LEGEND (Bottom Left)
+            HStack(spacing: 16) {
+                ForEach(activePlatforms, id: \.self) { platform in
+                    HStack(spacing: 4) {
+                        Circle()
+                            .fill(platformColors[platform] ?? .gray)
+                            .frame(width: 8, height: 8)
+                        Text(platform.capitalized)
+                            .font(.system(size: 10, weight: .bold))
+                            .foregroundColor(.secondary)
+                    }
+                }
+            }
+            .padding(.leading, 10) // Align with the start of the chart
         }
-        .padding(.horizontal, 15) // Increased padding so 'M' isn't cut off
+        .padding(.horizontal, 15)
         .padding(.top, 20)
+        .padding(.bottom, 10)
         .background(Color(.systemBackground))
         .clipped()
     }

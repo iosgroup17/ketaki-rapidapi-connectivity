@@ -11,8 +11,6 @@ serve(async (req) => {
 
   try {
     const { handle, user_id, p_variable = 0 } = await req.json()
-    console.log(`\n=== 🐦 TWITTER SCRAPE V7 (FIX): ${handle} ===`)
-
     const RAPID_KEY = Deno.env.get('RAPIDAPI_KEY')
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
@@ -22,24 +20,22 @@ serve(async (req) => {
 
     const { data: currentData } = await supabase.from('user_analytics').select('*').eq('user_id', user_id).single()
 
+    // 1. Resolve User ID
     const cleanHandle = handle.replace('@', '').trim()
     const profileResp = await fetch(`https://twitter241.p.rapidapi.com/user?username=${cleanHandle}`, {
       headers: { 'x-rapidapi-key': RAPID_KEY!, 'x-rapidapi-host': 'twitter241.p.rapidapi.com' }
     })
     const profileData = await profileResp.json()
-    const twitterID = profileData.result?.data?.user?.result?.rest_id || 
-                      profileData.user?.result?.rest_id || 
-                      profileData.data?.user?.result?.rest_id
-
+    const twitterID = profileData.user?.result?.rest_id || profileData.result?.data?.user?.result?.rest_id
     if (!twitterID) throw new Error("Twitter User Not Found")
 
+    // 2. Get Tweets
     const tweetsResp = await fetch(`https://twitter241.p.rapidapi.com/user-tweets?user=${twitterID}&count=20`, {
       headers: { 'x-rapidapi-key': RAPID_KEY!, 'x-rapidapi-host': 'twitter241.p.rapidapi.com' }
     })
     const tweetsData = await tweetsResp.json()
+    const instructions = tweetsData.result?.timeline?.instructions || []
     
-    const instructions = tweetsData.result?.timeline?.instructions || 
-                         tweetsData.data?.user?.result?.timeline?.timeline?.instructions || []
     let entries: any[] = []
     instructions.forEach((instr: any) => {
         if (instr.type === "TimelineAddEntries" && instr.entries) entries = entries.concat(instr.entries)
@@ -50,42 +46,93 @@ serve(async (req) => {
     const startOfWeek = new Date(now)
     startOfWeek.setDate(now.getDate() - ((now.getDay() + 6) % 7))
     startOfWeek.setHours(0,0,0,0)
+    const nowKey = now.toISOString().split('T')[0]
 
     let postsThisWeek = 0
     let totalRawEngagement = 0
     let validPostCount = 0
     const dailyMap: Record<string, number> = {}
+    
+    let bestPost: any = null
+    let maxPowerScore = -1
 
     entries.forEach((entry: any) => {
-        if (entry.entryId?.startsWith("promoted") || entry.entryId?.startsWith("who-to-follow")) return
-        const legacy = entry.content?.itemContent?.tweet_results?.result?.legacy
-        if (legacy && legacy.created_at) {
-            const eng = (legacy.favorite_count || 0) + (legacy.retweet_count || 0) + (legacy.reply_count || 0)
-            
-            const postDate = new Date(legacy.created_at)
-            if (postDate >= startOfWeek) {
-                postsThisWeek++
-                totalRawEngagement += eng
-                validPostCount++
-                
-                // ✅ FIX: Use local string to prevent timezone drift
-                const dateKey = postDate.toLocaleDateString('en-CA')
-                if (!dailyMap[dateKey]) dailyMap[dateKey] = 0
-                dailyMap[dateKey] += eng
-            }
-        }
-    })
+      if (entry.entryId?.startsWith("promoted") || entry.entryId?.startsWith("who-to-follow")) return
+      
+      const tweetResult = entry.content?.itemContent?.tweet_results?.result
+      const legacy = tweetResult?.legacy || tweetResult?.tweet?.legacy
+      
+      if (legacy && legacy.created_at) {
+          // 🛑 FIX: FILTER OUT RETWEETS
+          // If retweeted_status_result exists, it's someone else's post.
+          if (legacy.retweeted_status_result || legacy.retweeted_status_id_str) return;
 
-    if (Object.keys(dailyMap).length > 0) {
-        const dailyRows = Object.keys(dailyMap).map(date => ({
-            user_id: user_id,
-            date: date,
-            platform: 'twitter',
-            engagement: dailyMap[date]
-        }))
-        await supabase.from('daily_analytics').upsert(dailyRows, { onConflict: 'user_id,date,platform' })
+          const postDate = new Date(legacy.created_at)
+          
+          if (postDate >= startOfWeek) { 
+              const likes = legacy.favorite_count || 0
+              const reposts = legacy.retweet_count || 0
+              const replies = legacy.reply_count || 0
+              const views = Number(tweetResult?.views?.count || 0)
+              
+              // Weekly Stats
+              const postEngagement = likes + reposts + replies
+              postsThisWeek++
+              totalRawEngagement += postEngagement
+              validPostCount++
+
+              // Best Post Logic
+              const powerScore = likes + (replies * 2) + (reposts * 3)
+              if (powerScore > maxPowerScore) {
+                  maxPowerScore = powerScore
+                  const tweetId = tweetResult?.rest_id || entry.entryId.split('-').pop()
+                  bestPost = { 
+                      text: legacy.full_text, 
+                      likes, 
+                      comments: replies, 
+                      reposts, 
+                      views,
+                      date: postDate.toISOString().split('T')[0],
+                      url: `https://x.com/${cleanHandle}/status/${tweetId}` 
+                  }
+              }
+              
+              // Graph Logic
+              const dateKey = postDate.toISOString().split('T')[0]
+              if (dateKey === nowKey) {
+                  if (!dailyMap[dateKey]) dailyMap[dateKey] = 0
+                  dailyMap[dateKey] += postEngagement
+              }
+          }
+      }
+  })
+
+    // 3. Upsert Graph Data (Today Only)
+    if (dailyMap[nowKey]) {
+        await supabase.from('daily_analytics').upsert({ 
+            user_id, 
+            date: nowKey, 
+            platform: 'twitter', 
+            engagement: dailyMap[nowKey] 
+        }, { onConflict: 'user_id,date,platform' })
     }
 
+    // 4. Upsert Best Post of the Week
+    if (bestPost) {
+        await supabase.from('best_posts').upsert({
+            user_id, 
+            platform: 'twitter', 
+            post_text: bestPost.text,
+            likes: bestPost.likes, 
+            comments: bestPost.comments, 
+            shares_reposts: bestPost.reposts, 
+            extra_metric: bestPost.views,
+            post_url: bestPost.url,
+            post_date: bestPost.date
+        })
+    }
+
+    // 5. Calculate Score & Streak
     const avgEng = validPostCount > 0 ? totalRawEngagement / validPostCount : 0
     const Hw = Math.min(Math.round((avgEng * 4.0) + 50 + p_variable), 1000)
 
@@ -101,25 +148,26 @@ serve(async (req) => {
         if (postsThisWeek > 0 && newStreak === 0) newStreak = 1
     }
 
-    const { error: dbError } = await supabase.from('user_analytics').upsert({ 
-        user_id: user_id, 
-        x_score: Hw,
-        x_post_count: postsThisWeek,
+    // 6. Save Summary Analytics
+    await supabase.from('user_analytics').upsert({ 
+        user_id, 
+        x_score: Hw, 
+        x_post_count: postsThisWeek, 
         x_engagement: totalRawEngagement,
-        x_avg_engagement: Math.round(avgEng),
-        consistency_weeks: newStreak,
-        previous_handle_score: prevScore,
+        x_avg_engagement: Math.round(avgEng), 
+        consistency_weeks: newStreak, 
+        previous_handle_score: prevScore, 
         last_updated: now.toISOString()
     }, { onConflict: 'user_id' })
 
-    if (dbError) throw dbError
+    return new Response(JSON.stringify({ handle_score: Hw, post_count: postsThisWeek }), { 
+      headers: { ...corsHeaders, "Content-Type": "application/json" } 
+    })
 
-    return new Response(JSON.stringify({ 
-        handle_score: Hw,
-        post_count: postsThisWeek 
-    }), { headers: { ...corsHeaders, "Content-Type": "application/json" } })
-
-  } catch (err) {
-    return new Response(JSON.stringify({ error: err.message }), { status: 500, headers: corsHeaders })
+  } catch (err) { 
+    return new Response(JSON.stringify({ error: err.message }), { 
+      status: 500, 
+      headers: corsHeaders 
+    }) 
   }
 })

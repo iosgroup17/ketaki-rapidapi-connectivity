@@ -59,6 +59,16 @@ struct DailyMetric: Identifiable {
     let platform: String
 }
 
+struct BestPost: Codable {
+    let platform: String
+    let post_text: String?
+    let likes: Int
+    let comments: Int
+    let shares_reposts: Int?
+    let extra_metric: Int?
+    let post_url: String?
+    let post_date: String? // New field
+}
 
 class SupabaseManager {
     static let shared = SupabaseManager()

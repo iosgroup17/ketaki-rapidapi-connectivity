@@ -11,14 +11,8 @@ serve(async (req) => {
 
   try {
     const { handle, user_id, p_variable = 0 } = await req.json()
-    console.log(`\n=== 👔 LINKEDIN SCRAPE V7 (FIX): ${handle} ===`)
-
     const RAPID_KEY = Deno.env.get('RAPIDAPI_KEY')
-    const supabase = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
-      { auth: { persistSession: false } }
-    )
+    const supabase = createClient(Deno.env.get('SUPABASE_URL') ?? '', Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '', { auth: { persistSession: false } })
 
     const { data: currentData } = await supabase.from('user_analytics').select('*').eq('user_id', user_id).single()
 
@@ -33,15 +27,28 @@ serve(async (req) => {
     const startOfWeek = new Date(now)
     startOfWeek.setDate(now.getDate() - ((now.getDay() + 6) % 7)) 
     startOfWeek.setHours(0, 0, 0, 0)
+    const nowKey = now.toISOString().split('T')[0]
 
     let postsThisWeek = 0
     let totalRawEngagement = 0
     const dailyMap: Record<string, number> = {}
+    
+    let bestPost: any = null
+    let maxPowerScore = -1
 
     posts.forEach((p: any) => {
         const act = p.activity || {}
-        const eng = (Number(act.num_likes || 0) + Number(act.num_comments || 0))
+        const likes = Number(act.num_likes || 0)
+        const comments = Number(act.num_comments || 0)
+        const shares = Number(act.num_shares || 0)
+        const eng = likes + comments
         
+        const powerScore = likes + (comments * 2) + (shares * 3)
+        if (powerScore > maxPowerScore) {
+            maxPowerScore = powerScore
+            bestPost = { text: p.text || "No Text", likes, comments, shares, url: p.post_url }
+        }
+
         let postDate: Date | null = null
         if (p.created_at) postDate = new Date(p.created_at)
         else if (p.postedAtTimestamp) {
@@ -52,22 +59,23 @@ serve(async (req) => {
         if (postDate && postDate >= startOfWeek) {
             postsThisWeek++
             totalRawEngagement += eng
-            
-            // ✅ FIX: Use local string to prevent timezone drift
-            const dateKey = postDate.toLocaleDateString('en-CA')
-            if (!dailyMap[dateKey]) dailyMap[dateKey] = 0
-            dailyMap[dateKey] += eng
+            const dateKey = postDate.toISOString().split('T')[0]
+            if (dateKey === nowKey) {
+                if (!dailyMap[dateKey]) dailyMap[dateKey] = 0
+                dailyMap[dateKey] += eng
+            }
         }
     })
 
-    if (Object.keys(dailyMap).length > 0) {
-        const dailyRows = Object.keys(dailyMap).map(date => ({
-            user_id: user_id,
-            date: date,
-            platform: 'linkedin',
-            engagement: dailyMap[date]
-        }))
-        await supabase.from('daily_analytics').upsert(dailyRows, { onConflict: 'user_id,date,platform' })
+    if (dailyMap[nowKey]) {
+        await supabase.from('daily_analytics').upsert({ user_id, date: nowKey, platform: 'linkedin', engagement: dailyMap[nowKey] }, { onConflict: 'user_id,date,platform' })
+    }
+
+    if (bestPost) {
+        await supabase.from('best_posts').upsert({
+            user_id, platform: 'linkedin', post_text: bestPost.text,
+            likes: bestPost.likes, comments: bestPost.comments, shares_reposts: bestPost.shares, post_url: bestPost.url
+        })
     }
 
     const avgEng = postsThisWeek > 0 ? totalRawEngagement / postsThisWeek : 0
@@ -85,25 +93,11 @@ serve(async (req) => {
         if (postsThisWeek > 0 && newStreak === 0) newStreak = 1
     }
 
-    const { error: dbError } = await supabase.from('user_analytics').upsert({ 
-        user_id: user_id, 
-        linkedin_score: Hw,
-        linkedin_post_count: postsThisWeek,
-        linkedin_engagement: totalRawEngagement,
-        linkedin_avg_engagement: Math.round(avgEng),
-        consistency_weeks: newStreak,
-        previous_handle_score: prevScore,
-        last_updated: now.toISOString()
+    await supabase.from('user_analytics').upsert({ 
+        user_id, linkedin_score: Hw, linkedin_post_count: postsThisWeek, linkedin_engagement: totalRawEngagement,
+        linkedin_avg_engagement: Math.round(avgEng), consistency_weeks: newStreak, previous_handle_score: prevScore, last_updated: now.toISOString()
     }, { onConflict: 'user_id' })
 
-    if (dbError) throw dbError
-
-    return new Response(JSON.stringify({ 
-        handle_score: Hw, 
-        post_count: postsThisWeek 
-    }), { headers: { ...corsHeaders, "Content-Type": "application/json" } })
-
-  } catch (err) {
-    return new Response(JSON.stringify({ error: err.message }), { status: 500, headers: corsHeaders })
-  }
+    return new Response(JSON.stringify({ handle_score: Hw, post_count: postsThisWeek }), { headers: { ...corsHeaders, "Content-Type": "application/json" } })
+  } catch (err) { return new Response(JSON.stringify({ error: err.message }), { status: 500, headers: corsHeaders }) }
 })
