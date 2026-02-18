@@ -15,6 +15,7 @@ struct ScheduledPostData {
     let caption: String
     let images: [UIImage]?
     let hashtags: [String]
+    let optimalPostingTimes: [String]?
 }
 
 class SchedulerViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
@@ -35,6 +36,7 @@ class SchedulerViewController: UIViewController, UICollectionViewDelegate, UICol
     var hashtags: [String]?
     var imageNames: [String]?
     var postHeading: String?
+    var optimalPostingTimes: [String]?
     
     var existingPostId: UUID?
     
@@ -195,18 +197,19 @@ class SchedulerViewController: UIViewController, UICollectionViewDelegate, UICol
                let newPost = Post(
                     id: self.existingPostId ?? UUID(),
                     userId: SupabaseManager.shared.currentUserID,
-                   topicId: nil,
-                   status: .scheduled,
-                   postHeading: postData?.postHeading ?? "",
-                   fullCaption: postData?.caption ?? "",
-                   imageNames: self.imageNames,
-                   platformName: postData?.platformName ?? "General",
-                   platformIconName: postData?.iconName,
-                   hashtags: postData?.hashtags,
-                   scheduledAt: finalDate,
-                   publishedAt: nil,
-                   likes: 0,
-                   engagementScore: 0,
+                    topicId: nil,
+                    status: .scheduled,
+                    postHeading: postData?.postHeading ?? "",
+                    fullCaption: postData?.caption ?? "",
+                    imageNames: self.imageNames,
+                    platformName: postData?.platformName ?? "General",
+                    platformIconName: postData?.iconName,
+                    hashtags: postData?.hashtags,
+                    optimalPostingTimes: self.optimalPostingTimes,
+                    scheduledAt: finalDate,
+                    publishedAt: nil,
+                    likes: 0,
+                    engagementScore: 0,
                )
                
 

@@ -220,7 +220,7 @@ class ScheduledPostsTableViewController: UITableViewController, UIPopoverPresent
                                 platformIconName: selectedPost.platformIconName,
                                 caption: selectedPost.fullCaption,
                                 images: selectedPost.imageNames,
-                                hashtags: selectedPost.suggestedHashtags ?? [],
+                                hashtags: selectedPost.hashtags ?? [],
                                 postingTimes: selectedPost.optimalPostingTimes ?? []
                             )
                  editorVC.draft = draftData

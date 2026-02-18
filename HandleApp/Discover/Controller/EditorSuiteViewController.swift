@@ -167,14 +167,14 @@ class EditorSuiteViewController: UIViewController {
                 platformIconName: draft?.platformIconName,
 
                 hashtags: draft?.hashtags,
+                optimalPostingTimes: draft?.postingTimes,
 
                 scheduledAt: nil,
                 publishedAt: nil,
 
                 likes: 0,
                 engagementScore: 0.0,
-                suggestedHashtags: nil,
-                optimalPostingTimes: nil
+
             )
         
         print(SupabaseManager.shared.currentUserID)
@@ -231,12 +231,12 @@ class EditorSuiteViewController: UIViewController {
             platformName: draft?.platformName ?? "General",
             platformIconName: draft?.platformIconName,
             hashtags: draft?.hashtags,
+            optimalPostingTimes: draft?.postingTimes,
             scheduledAt: nil,
             publishedAt: Date(),
             likes: 0,
             engagementScore: 0.0,
-            suggestedHashtags: nil,
-            optimalPostingTimes: nil
+
         )
         
         Task {
@@ -435,6 +435,7 @@ extension EditorSuiteViewController: UICollectionViewDataSource, UICollectionVie
                     let icon = self.draft?.platformIconName
                     let tags = self.draft?.hashtags ?? []
                     let heading = self.draft?.postHeading ?? ""
+
                     
                     let package = ScheduledPostData(
                         postHeading: heading,
@@ -442,7 +443,8 @@ extension EditorSuiteViewController: UICollectionViewDataSource, UICollectionVie
                         iconName: icon,
                         caption: finalCaption,
                         images: finalImages,
-                        hashtags: tags
+                        hashtags: tags,
+                        optimalPostingTimes: draft?.postingTimes
                     )
                     
                     destinationVC.postData = package
@@ -452,6 +454,7 @@ extension EditorSuiteViewController: UICollectionViewDataSource, UICollectionVie
                     destinationVC.existingPostId = draft?.id
          
                     destinationVC.imageNames = draft?.images
+                    destinationVC.optimalPostingTimes = draft?.postingTimes
                 }
             }
         }

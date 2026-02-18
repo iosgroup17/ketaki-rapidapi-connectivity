@@ -185,7 +185,7 @@ class SavedPostsTableViewController: UITableViewController, UIPopoverPresentatio
                                     platformIconName: selectedPost.platformIconName,
                                     caption: selectedPost.fullCaption,
                                     images: selectedPost.imageNames, // Now passing array directly
-                                    hashtags: selectedPost.suggestedHashtags ?? [],
+                                    hashtags: selectedPost.hashtags ?? [],
                                     postingTimes: selectedPost.optimalPostingTimes ?? []
                     )
                     

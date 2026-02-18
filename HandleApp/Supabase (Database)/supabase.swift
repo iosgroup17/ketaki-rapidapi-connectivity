@@ -91,9 +91,9 @@ class SupabaseManager {
     
     var currentUserID: UUID {
         // Priority 1: Real Authenticated User
-        if let authID = client.auth.currentSession?.user.id {
-            return authID
-        }
+//        if let authID = client.auth.currentSession?.user.id {
+//            return authID
+//        }
         // Priority 2: Fallback for Simulator/Testing
         return testUserID
     }

@@ -17,6 +17,7 @@ struct Post: Codable, Identifiable {
     var platformName: String
     var platformIconName: String?
     let hashtags: [String]?
+    var optimalPostingTimes: [String]?
     
     // Scheduling
     var scheduledAt: Date?
@@ -25,8 +26,6 @@ struct Post: Codable, Identifiable {
     // Analytics & Meta
     var likes: Int?
     var engagementScore: Double?
-    var suggestedHashtags: [String]?
-    var optimalPostingTimes: [String]?
 
     enum PostStatus: String, Codable {
         case saved = "SAVED"
@@ -46,7 +45,6 @@ struct Post: Codable, Identifiable {
         case scheduledAt = "scheduled_at"
         case publishedAt = "published_at"
         case engagementScore = "engagement_score"
-        case suggestedHashtags = "suggested_hashtags"
         case optimalPostingTimes = "optimal_posting_times"
     }
 }
